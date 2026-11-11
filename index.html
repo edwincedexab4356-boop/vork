@@ -118,6 +118,7 @@ h2{font-size:clamp(30px,4vw,48px);line-height:1.04;margin:10px 0 14px;font-weigh
 .bA{display:block;width:100%;margin-top:10px;padding:14px;border-radius:14px;border:0;font-weight:800;font-size:15px;letter-spacing:.04em;background:#f2f3f4;color:#0a0b0c}
 .bB{display:block;width:100%;margin-top:8px;padding:12px;border-radius:14px;border:1px solid #33373e;background:transparent;color:#f2f3f4;font-weight:700;font-size:14px}
 .bA:active,.bB:active{transform:scale(.98)}
+.bA[hidden],.bB[hidden]{display:none}
 .fichas{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .ficha{background:#17191c;border-radius:14px;padding:10px 12px}
 .ficha small{display:block;font-size:10.5px;color:#9aa0a8;letter-spacing:.08em;text-transform:uppercase}
@@ -159,6 +160,11 @@ h2{font-size:clamp(30px,4vw,48px);line-height:1.04;margin:10px 0 14px;font-weigh
 .roja .bB{border-color:#ffffff80}
 @keyframes latir{50%{transform:scale(1.08)}}
 .roja.ver .escudo{animation:latir .6s ease-in-out infinite}
+.libre{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:22px;padding:16px 20px;border-radius:18px;background:#fff;color:var(--tinta)}
+.libre .clave{font:900 34px/1 var(--font);font-stretch:125%;letter-spacing:.12em;background:var(--tinta);color:#fff;padding:10px 16px;border-radius:12px}
+.libre b{display:block;font-size:17px;font-weight:800}
+.libre span{font-size:14px;color:#4a4e55}
+.libre .cta{margin-left:auto}
 .velocidad{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px;font-size:13px;color:#aeb3bb}
 
 /* estados */
@@ -262,6 +268,11 @@ footer .cont{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
     <div class="eyebrow">Simulador</div>
     <h2>Pruébalo tú mismo.</h2>
     <p class="intro">Entra a la app con la clave de demostración, arma la alarma y arrastra a la persona hacia la puerta del auto. Todo lo que ves funciona igual que en la alarma real.</p>
+    <div class="libre" role="note">
+      <div class="clave" aria-label="Clave 1 2 3 4">1234</div>
+      <div><b>Simulador gratis, para que cualquiera lo use</b><span>Entra a la app del simulador con la clave <strong>1234</strong>. No necesitas cuenta ni descargar nada.</span></div>
+      <button class="cta rojo" id="bEntrarDemo">Entrar con 1234</button>
+    </div>
     <div class="velocidad">Tiempos:
       <button class="bt" id="vRapido" aria-pressed="true">Demo rápida (5 s)</button>
       <button class="bt" id="vReal" aria-pressed="false">Como el real (30 s / 10 s)</button>
@@ -332,7 +343,7 @@ SIN HORA  ---cm</div>
             <p>Escribe tu clave para entrar</p>
             <div class="puntos" id="puntos"><i></i><i></i><i></i><i></i></div>
             <div class="teclado" id="teclado"></div>
-            <div class="pista">Clave de demostración: 1234</div>
+            <div class="pista">Simulador gratis · clave: 1234</div>
           </div>
 
           <div id="appDentro" style="display:none;flex-direction:column;flex:1;min-height:0">
@@ -422,7 +433,7 @@ SIN HORA  ---cm</div>
       <svg viewBox="0 0 125 30" style="color:#fff"><use href="#vork" fill="currentColor"/></svg>
       <h3 style="font-size:24px;margin:18px 0 6px;font-weight:800">La app oficial</h3>
       <p>Esta página explica VORK y deja probarlo con un simulador. La alarma real se controla con la <b style="color:#fff">app VORK para Android</b>, que es la que se presenta.</p>
-      <p style="margin-bottom:0">Clave de demostración del simulador: <b style="color:#fff">1234</b>.</p>
+      <p style="margin-bottom:0">El simulador es gratis y cualquiera lo puede usar: entra con la clave <b style="color:#fff">1234</b>.</p>
     </div>
   </div>
 </section>
@@ -585,6 +596,7 @@ function tecla(k){
     clave = ''; document.querySelectorAll('#puntos i').forEach(p=>p.classList.remove('on'));
   }, 180);
 }
+$('bEntrarDemo').onclick = () => { audio(); if (!S.sesion) ['1','2','3','4'].forEach(tecla); document.querySelector('.tel').scrollIntoView({block:'center'}); };
 $('bSalir').onclick = () => { S.sesion = false; $('appDentro').style.display='none'; $('login').style.display=''; evento('Sesión cerrada'); pintar(); };
 document.querySelectorAll('.navApp button').forEach(b => b.onclick = () => {
   document.querySelectorAll('.navApp button').forEach(x => x.setAttribute('aria-selected', String(x===b)));
