@@ -4,10 +4,6 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const $ = id => document.getElementById(id);
 const seccion = $('historia'), lienzo = $('lienzo3d');
@@ -20,7 +16,12 @@ let renderer;
 try {
   renderer = new THREE.WebGLRenderer({ canvas: lienzo, antialias: true, powerPreference: 'high-performance' });
 } catch (e) { sin3D('WebGL no disponible'); throw e; }
-renderer.setPixelRatio(Math.min(devicePixelRatio, movil ? 1.4 : 1.75));
+// Calidad automática: empieza moderada y se ajusta según lo rápido que dibuje el equipo.
+const CALIDAD_MAX = Math.min(devicePixelRatio, movil ? 1.5 : 1.6);
+let calidad = Math.min(CALIDAD_MAX, movil ? 1 : 1.25);
+const q = new URLSearchParams(location.search).get('calidad');
+if (q === 'baja') calidad = .6;
+renderer.setPixelRatio(calidad);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 
@@ -40,7 +41,7 @@ function texturaRadial(stops){
   stops.forEach(([o,col]) => gr.addColorStop(o,col)); g.fillStyle = gr; g.fillRect(0,0,512,512);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
-const piso = new THREE.Mesh(new THREE.CircleGeometry(16, 96), new THREE.MeshStandardMaterial({ color:'#050607', roughness:.42, metalness:.35, transparent:true, alphaMap: texturaRadial([[0,'#fff'],[.45,'#fff'],[1,'#000']]), envMapIntensity:.35 }));
+const piso = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), new THREE.MeshBasicMaterial({ map: texturaRadial([[0,'#1a1c21'],[.25,'#101115'],[.6,'#08090b'],[1,'#07080a']]), fog:false }));
 piso.rotation.x = -Math.PI/2; escena.add(piso);
 const sombra = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 5.6), new THREE.MeshBasicMaterial({ map: texturaRadial([[0,'rgba(0,0,0,.85)'],[.55,'rgba(0,0,0,.45)'],[1,'rgba(0,0,0,0)']]), transparent:true, depthWrite:false }));
 sombra.rotation.x = -Math.PI/2; sombra.position.set(0, .004, .24); escena.add(sombra);
@@ -49,10 +50,13 @@ const brilloPiso = new THREE.Mesh(new THREE.PlaneGeometry(9, 11), new THREE.Mesh
 brilloPiso.rotation.x = -Math.PI/2; brilloPiso.position.set(0,.006,.2); escena.add(brilloPiso);
 
 /* ---------- luces ---------- */
-const clave = new THREE.SpotLight('#ffffff', 38, 30, .5, .75, 1.4); clave.position.set(3, 9, 4); escena.add(clave);
+const clave = new THREE.DirectionalLight('#ffffff', 1.6); clave.position.set(3, 9, 4); escena.add(clave);
 const borde = new THREE.DirectionalLight('#ff2d46', .45); borde.position.set(-6, 3, -6); escena.add(borde);
-const luzAlarmaT = new THREE.PointLight('#ff1a3a', 0, 9, 1.6); luzAlarmaT.position.set(0, .7, -2.6); escena.add(luzAlarmaT);
-const luzAlarmaD = new THREE.PointLight('#ffb020', 0, 8, 1.6); luzAlarmaD.position.set(0, .6, 2.9); escena.add(luzAlarmaD);
+// destellos ligeros (en vez de postproceso): luces traseras, delanteras y emisores de los sensores
+const texBrillo = texturaRadial([[0,'rgba(255,255,255,1)'],[.2,'rgba(255,255,255,.55)'],[1,'rgba(255,255,255,0)']]);
+function destello(color, x, y, z, esc){ const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map:texBrillo, color, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, opacity:0 })); sp.position.set(x,y,z); sp.scale.setScalar(esc); escena.add(sp); return sp; }
+const destellosT = [-.55, 0, .55].map(x => destello('#ff1a3a', x, .97, -1.66, .9));
+const destellosD = [-.7, .7].map(x => destello('#ffb020', x, .66, 2.25, .8));
 
 /* ---------- haz ultrasónico ---------- */
 const LARGO = 2.4;
@@ -78,8 +82,10 @@ function haz(lado){ // lado: +1 conductor (x+), -1 pasajero (x-)
   grupo.add(cono);
   const emisor = new THREE.Mesh(new THREE.SphereGeometry(.028, 16, 16), new THREE.MeshBasicMaterial({ color:'#ff2d46' }));
   grupo.add(emisor);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map:texBrillo, color:'#ff2d46', transparent:true, depthWrite:false, blending:THREE.AdditiveBlending }));
+  halo.scale.setScalar(.32); grupo.add(halo);
   escena.add(grupo);
-  return { grupo, mat, emisor, lado };
+  return { grupo, mat, emisor, halo, lado };
 }
 const haces = [haz(1), haz(-1)];
 
@@ -137,6 +143,11 @@ cargador.load('modelo/auto.glb', async gltf => {
   auto.traverse(o => {
     if (!o.isMesh) return;
     if (/License/i.test(o.name)) o.visible = false;          // la placa lleva un logo de terceros
+    if (o.material.transmission > 0 || /Windshield$/.test(o.name)) {
+      o.material = new THREE.MeshStandardMaterial({ color:'#0b0d10', metalness:.9, roughness:.06, transparent:true, opacity:.62, envMapIntensity:1.6 });
+    } else if (o.material.isMeshPhysicalMaterial && !/BodyRearPanelsColor1/.test(o.name)) {
+      const m = o.material; o.material = new THREE.MeshStandardMaterial({ color:m.color, map:m.map, normalMap:m.normalMap, roughness:m.roughness, metalness:m.metalness, roughnessMap:m.roughnessMap, metalnessMap:m.metalnessMap, aoMap:m.aoMap, transparent:m.transparent, opacity:m.opacity });
+    }
     if (/BodyRearPanelsColor1/.test(o.name)) {                // pintura grafito metálica con barniz
       o.material = new THREE.MeshPhysicalMaterial({ color:'#2a2d33', metalness:.75, roughness:.32, clearcoat:1, clearcoatRoughness:.06, envMapIntensity:1.2 });
     }
@@ -151,13 +162,6 @@ cargador.load('modelo/auto.glb', async gltf => {
   seccion.classList.add('cargado');
 }, ev => { if (ev.total) $('cargaBarra').style.width = (ev.loaded/ev.total*100).toFixed(0)+'%'; },
 () => sin3D('No se pudo cargar el modelo'));
-
-/* ---------- postproceso (brillo) ---------- */
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(escena, camara));
-const bloom = new UnrealBloomPass(new THREE.Vector2(1,1), .38, .45, .9);
-composer.addPass(bloom);
-composer.addPass(new OutputPass());
 
 /* ---------- tomas de cámara ---------- */
 const V = (x,y,z) => new THREE.Vector3(x,y,z);
@@ -196,7 +200,7 @@ const tarjetas = [...document.querySelectorAll('.paso3d')];
 let pObj = 0, pVis = 0, visible = true, ancho = 0, alto = 0;
 function medir(){
   const r = lienzo.getBoundingClientRect(); ancho = r.width; alto = r.height;
-  renderer.setSize(ancho, alto, false); composer.setSize(ancho, alto); bloom.setSize(ancho, alto);
+  renderer.setSize(ancho, alto, false);
   camara.aspect = ancho/alto;
   camara.fov = camara.aspect < 1 ? 50 : camara.aspect < 1.3 ? 40 : 32;
   camara.updateProjectionMatrix();
@@ -216,20 +220,28 @@ const INICIO = V(3.4,0,-5.2), FIN = V(1.5,0,-.3);
 function cuadro(){
   requestAnimationFrame(cuadro);
   if (!visible) return;
+  if (pendiente !== null) { calidad = pendiente; pendiente = null; renderer.setPixelRatio(calidad); }
   const t = reloj.getElapsedTime();
   pVis += (pObj - pVis) * (reducir ? 1 : .08);
   const p = pVis;
 
   // cámara (en la portada gira despacio)
   const c = toma(p);
+  if (camara.aspect < 1) c.pos.sub(c.mira).multiplyScalar(1.3).add(c.mira);   // en vertical, la cámara se aleja un poco
   const giro = (1 - rango(p, 0, .12)) * (reducir ? 0 : Math.sin(t*.15) * .9);
   c.pos.applyAxisAngle(V(0,1,0), giro);
   camara.position.copy(c.pos); camara.lookAt(c.mira);
   // en pantallas anchas, el auto se corre a la derecha para dejar sitio al texto (portada y final)
   const corrido = camara.aspect > 1.2 ? ((1 - rango(p, 0, .12)) + rango(p, .95, 1)) * .2 : 0;
   if (Math.abs(corrido - (camara.view?.offsetX || 0) / Math.max(1, ancho)) > .0005) {
-    if (corrido > 0) camara.setViewOffset(ancho, alto, -corrido*ancho, 0, ancho, alto); else camara.clearViewOffset();
+    if (corrido > 0) camara.setViewOffset(ancho, alto, -corrido*ancho, 0, ancho, alto); else if (camara.aspect >= 1) camara.clearViewOffset();
   }
+  // en vertical (celular), en portada y final el auto baja para no quedar detrás del texto
+  if (camara.aspect < 1) {
+    const baja = (1 - rango(p, 0, .12)) * .12 + rango(p, .95, 1) * .1;
+    if (baja > .001) camara.setViewOffset(ancho, alto, 0, -baja*alto, ancho, alto); else camara.clearViewOffset();
+  }
+  seccion.classList.toggle('enPortada', p < .12);
 
   // historia
   const armado = p > .1;
@@ -254,15 +266,17 @@ function cuadro(){
     h.mat.uniforms.uA.value = on * (alarma ? 1.6 : 1);
     h.mat.uniforms.uT.value = t;
     h.mat.uniforms.uCol.value.set(i === 0 && (enHaz || alarma) ? '#ff2d46' : '#dff4ff');
-    h.emisor.visible = on > .02;
+    h.emisor.visible = on > .02; h.halo.visible = on > .02; h.halo.material.color.copy(h.emisor.material.color);
     h.emisor.material.color.set(armado ? (enHaz && i===0 ? '#ff2d46' : '#22c55e') : '#555');
+    h.halo.material.color.copy(h.emisor.material.color);
   });
   matPuerta.opacity = v2 * (.55 + .45*Math.sin(t*3));
   pir.material.opacity = v2 * (.35 + .25*Math.sin(t*2.2));
   pir.scale.setScalar(1 + .06*Math.sin(t*2.2));
 
   matsLuces.forEach(m => { m.emissiveIntensity = parpadeo ? 6 : 0; });
-  luzAlarmaT.intensity = parpadeo ? 18 : 0; luzAlarmaD.intensity = parpadeo ? 10 : 0;
+  destellosT.forEach(d => d.material.opacity = parpadeo ? .95 : 0);
+  destellosD.forEach(d => d.material.opacity = parpadeo ? .7 : 0);
   brilloPiso.material.opacity = alarma ? (parpadeo ? .9 : .35) : 0;
   borde.intensity = .45 + (alarma ? 1.4 : 0);
   seccion.classList.toggle('alarma', alarma);
@@ -288,6 +302,19 @@ function cuadro(){
   });
   $('barra3d').style.transform = `scaleX(${p})`;
 
-  composer.render();
+  renderer.render(escena, camara);
+  ajustarCalidad();
 }
+// mide cuánto tarda cada cuadro y sube o baja la resolución para mantenerlo fluido.
+// El cambio se aplica al empezar el cuadro siguiente (cambiar el tamaño borra el lienzo).
+let ema = 16, ultimo = performance.now(), muestras = 0, pendiente = null;
+function ajustarCalidad(){
+  const ahora = performance.now(), dt = ahora - ultimo; ultimo = ahora;
+  if (dt > 120 || q === 'baja') return;          // pestaña en segundo plano o pausada: no cuenta
+  ema += (dt - ema) * .08; muestras++;
+  if (muestras < 45) return;                      // decide solo con suficientes cuadros nuevos
+  if (ema > 22 && calidad > .55) { pendiente = Math.max(.55, calidad - .15); muestras = 0; }
+  else if (ema < 14 && calidad < CALIDAD_MAX) { pendiente = Math.min(CALIDAD_MAX, calidad + .1); muestras = 0; }
+}
+if (new URLSearchParams(location.search).has("debug")) window.__v3d = { renderer, escena, camara, fijarCalidad: c => { calidad = c; renderer.setPixelRatio(c); } };
 cuadro();
