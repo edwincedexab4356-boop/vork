@@ -264,7 +264,69 @@ td.dos b{color:var(--rojo)}
 footer{padding:40px 0 60px;border-top:1px solid var(--linea);color:var(--mut);font-size:13px}
 footer .cont{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.onda,.barrido,.chip i,.roja.mostrar .escudo{animation:none}.notif{transition:none}}
+
+/* historia 3D */
+.historia{position:relative;height:620vh}
+.escenario{position:sticky;top:0;height:100dvh;overflow:hidden}
+#lienzo3d{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vineta{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,transparent 55%,#07080acc 100%);transition:background .3s}
+.historia.alarma .vineta{background:radial-gradient(ellipse at 50% 55%,transparent 45%,#ff2d4655 100%)}
+.carga3d{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;gap:10px;justify-items:center;font:12px var(--mono);color:var(--mut);transition:opacity .5s}
+.carga3d i{display:block;width:180px;height:3px;background:#1d2026;border-radius:3px;overflow:hidden}
+.carga3d b{display:block;height:100%;width:0;background:var(--rojo);transition:width .2s}
+.carga3d.lista{opacity:0;pointer-events:none}
+.etq3d{position:absolute;left:0;top:0;opacity:0;pointer-events:none;white-space:nowrap;font:600 11.5px var(--mono);color:#fff;padding:5px 10px 5px 8px;border-radius:999px;background:#0e1013d9;border:1px solid #ff2d4699;display:flex;align-items:center;gap:7px;margin:-14px 0 0 14px;transition:opacity .25s}
+.etq3d i{width:7px;height:7px;border-radius:50%;background:var(--rojo);box-shadow:0 0 8px var(--rojo)}
+.etq3d.v{border-color:#22c55e99}.etq3d.v i{background:var(--verde);box-shadow:0 0 8px var(--verde)}
+.etq3d.m{border-color:#8b5cf699}.etq3d.m i{background:var(--violeta);box-shadow:0 0 8px var(--violeta)}
+.hud{position:absolute;top:76px;right:20px;display:grid;grid-template-columns:repeat(2,auto);gap:1px;background:var(--linea);border:1px solid var(--linea);border-radius:14px;overflow:hidden;font:12px var(--mono);opacity:0;transition:opacity .5s}
+.historia.cargado .hud{opacity:1}
+.hud div{background:#0e1013e6;padding:8px 12px;min-width:120px}
+.hud span{display:block;font-size:10px;color:var(--tenue);text-transform:uppercase;letter-spacing:.1em}
+.hud b{color:var(--txt)}
+.hud .h-alarma{color:var(--rojo)}.hud .h-entrada{color:var(--ambar)}.hud .h-armado{color:var(--verde)}
+.notif3d{position:absolute;right:20px;top:200px;width:300px;display:flex;gap:10px;padding:12px;border-radius:16px;background:#1f2226f0;backdrop-filter:blur(10px);font-size:13px;color:#e6e8eb;transform:translateX(120%);transition:transform .45s cubic-bezier(.3,.8,.3,1)}
+.notif3d.ver{transform:none}
+.notif3d .ic{width:32px;height:32px;border-radius:9px;background:#0a0b0c;display:grid;place-items:center;flex:none;border:1px solid #33373e}
+.notif3d b{display:block;font-size:12px;color:#9aa0a8;font-weight:600}
+.pasos3d{position:absolute;left:0;right:0;bottom:0;top:0;pointer-events:none}
+.paso3d{position:absolute;left:max(20px,calc((100vw - 1240px)/2 + 20px));bottom:90px;max-width:430px;padding:22px 24px;border-radius:20px;background:#0e1013d0;backdrop-filter:blur(10px);border:1px solid var(--linea);opacity:0;transition:none}
+.paso3d .num{font:700 12px var(--mono);color:var(--rojo);letter-spacing:.1em}
+.paso3d .num.v2{background:linear-gradient(90deg,#fff,#ff8a98);-webkit-background-clip:text;background-clip:text;color:transparent}
+.paso3d h3{margin:8px 0 6px;font-size:26px;font-weight:900;font-stretch:125%;line-height:1.05}
+.paso3d p{margin:0;color:#b9bec6;font-size:15px}
+.portada3d{background:none;border:0;backdrop-filter:none;max-width:640px;bottom:auto;top:16vh;padding:0}
+.portada3d h1{margin:16px 0 14px}
+.portada3d p{font-size:18px;max-width:46ch}
+.desliza{margin-top:26px;font:600 12px var(--mono);color:var(--mut);letter-spacing:.08em;text-transform:uppercase}
+.desliza span{display:inline-block;animation:bajar 1.6s ease-in-out infinite}
+@keyframes bajar{50%{transform:translateY(6px)}}
+.final3d{bottom:auto;top:22vh;width:480px;max-width:calc(100vw - 40px)}
+.final3d h3{font-size:36px}
+.final3d .metricas{margin:18px 0 20px;text-align:left}
+.ticker3d{position:absolute;left:0;right:0;bottom:0;font:12px var(--mono);color:#7ee2a8;padding:9px 20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#0a0c0ecc;border-top:1px solid var(--linea)}
+.progreso3d{position:absolute;left:0;right:0;bottom:36px;height:2px;background:#ffffff10}
+.progreso3d b{display:block;height:100%;background:var(--rojo);transform-origin:0 50%;transform:scaleX(0)}
+@media (max-width:760px){
+  .paso3d{left:14px;right:14px;max-width:none;bottom:70px;padding:16px 18px}
+  .paso3d h3{font-size:21px}
+  .portada3d{top:12vh}
+  .hud{top:70px;right:12px;left:12px;grid-template-columns:repeat(4,1fr)}
+  .hud div{min-width:0;padding:6px 8px}
+  .notif3d{top:150px;right:12px;width:auto;left:12px}
+  .final3d{left:14px;margin-left:0;width:auto;right:14px}
+  .etq3d{font-size:10px}
+}
+/* sin WebGL: se lee como texto normal */
+.historia.sin3d{height:auto}
+.historia.sin3d .escenario{position:relative;height:auto;padding:40px 20px;display:grid;gap:14px}
+.historia.sin3d #lienzo3d,.historia.sin3d .vineta,.historia.sin3d .carga3d,.historia.sin3d .etq3d,.historia.sin3d .hud,.historia.sin3d .notif3d,.historia.sin3d .progreso3d{display:none}
+.historia.sin3d .pasos3d{position:static;display:grid;gap:14px}
+.historia.sin3d .paso3d{position:static;opacity:1!important;transform:none!important;margin:0;max-width:none;width:auto}
+.historia.sin3d .ticker3d{position:static}
+@media (prefers-reduced-motion:reduce){.desliza span{animation:none}}
 </style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 </head>
 <body>
 
@@ -277,60 +339,50 @@ footer .cont{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 
 <nav class="nav">
   <div class="cont">
-    <a href="#inicio" aria-label="VORK, inicio"><svg class="marca" viewBox="0 0 125 30" style="color:var(--txt)"><use href="#vork" fill="currentColor"/></svg></a>
+    <a href="#historia" aria-label="VORK, inicio"><svg class="marca" viewBox="0 0 125 30" style="color:var(--txt)"><use href="#vork" fill="currentColor"/></svg></a>
     <div class="links"><a href="#simulador">Simulador</a><a href="#capo">Bajo el capó</a><a href="#arquitectura">Arquitectura</a><a href="#comparar">1.0 vs 2.0</a><a href="#app">La app</a></div>
     <a class="cta rojo" href="#simulador">Probar ahora</a>
   </div>
 </nav>
 
 <main>
-<header class="hero" id="inicio">
-  <div class="cont">
-    <div>
-      <span class="chip"><i></i>SISTEMA EMBEBIDO · IoT · ANDROID</span>
-      <h1>Nadie toca tu auto <span class="r">sin que lo sepas.</span></h1>
-      <p class="lead">VORK es una alarma antirrobo hecha desde cero: un Arduino con una máquina de estados en C++, sensores ultrasónicos en los retrovisores, Bluetooth hacia una app nativa en Kotlin y avisos por internet. Pruébala aquí en sus dos versiones.</p>
-      <div class="botones"><a class="cta rojo" href="#simulador">▶ Abrir el simulador</a><a class="cta linea" href="#capo">Ver cómo está hecho</a></div>
-      <div class="metricas">
-        <div><b>819</b><span>líneas de C++</span></div>
-        <div><b>2081</b><span>líneas de Kotlin</span></div>
-        <div><b>6</b><span>estados</span></div>
-        <div><b>9600</b><span>baudios</span></div>
-      </div>
-    </div>
-    <div class="radar" aria-hidden="true">
-      <svg viewBox="0 0 520 340">
-        <defs><linearGradient id="gBarr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff2d46" stop-opacity="0"/><stop offset="1" stop-color="#ff2d46" stop-opacity=".25"/></linearGradient></defs>
-        <g stroke="#1b1f25" fill="none"><circle cx="260" cy="170" r="60"/><circle cx="260" cy="170" r="110"/><circle cx="260" cy="170" r="160"/><path d="M260 0V340 M0 170H520"/></g>
-        <path class="barrido" d="M260 170 L260 10 A160 160 0 0 1 380 60 Z" fill="url(#gBarr)"/>
-        <g transform="translate(110 115)">
-          <rect x="0" y="0" width="300" height="110" rx="38" fill="#c9ccd1"/>
-          <rect x="70" y="10" width="150" height="90" rx="22" fill="#24272c"/>
-          <rect x="88" y="18" width="114" height="74" rx="14" fill="#3a3e45"/>
-          <path d="M180 0V110 M110 0V110" stroke="#9aa0a8" stroke-width="1.5"/>
-          <rect x="207" y="-12" width="18" height="13" rx="3" fill="#c9ccd1"/><rect x="207" y="109" width="18" height="13" rx="3" fill="#c9ccd1"/>
-        </g>
-        <g fill="none" stroke="#ff2d46" stroke-width="2">
-          <circle class="onda" cx="326" cy="106" r="70"/><circle class="onda b" cx="326" cy="106" r="70"/><circle class="onda c" cx="326" cy="106" r="70"/>
-          <circle class="onda" cx="326" cy="234" r="70" style="animation-delay:.4s"/><circle class="onda b" cx="326" cy="234" r="70" style="animation-delay:1.2s"/><circle class="onda c" cx="326" cy="234" r="70" style="animation-delay:2s"/>
-        </g>
-        <circle cx="326" cy="106" r="4" fill="#ff2d46"/><circle cx="326" cy="234" r="4" fill="#ff2d46"/>
-      </svg>
-      <div class="ticker" id="ticker">← ST|DESARMADO|---|80 · esperando…</div>
-    </div>
-  </div>
-</header>
+<section id="historia" class="historia" aria-label="VORK en 3D: cómo protege tu auto">
+  <div class="escenario">
+    <canvas id="lienzo3d" aria-hidden="true"></canvas>
+    <div class="vineta" aria-hidden="true"></div>
+    <div class="carga3d" id="carga3d"><span>Cargando auto 3D</span><i><b id="cargaBarra"></b></i></div>
 
-<section id="que-hace" style="padding-top:30px">
-  <div class="cont">
-    <div class="eyebrow">// qué hace</div>
-    <h2>Detecta. Espera. Suena. Avisa.</h2>
-    <div class="tarjetas">
-      <div class="tarjeta"><div class="num">01 · DETECTA</div><h3>Sensores en los retrovisores</h3><p>Ultrasonido que mide hacia atrás, a lo largo de las puertas. Si alguien entra en esa zona, VORK lo sabe.</p></div>
-      <div class="tarjeta"><div class="num">02 · ESPERA</div><h3>10 segundos de gracia</h3><p>Si eres tú, desarmas desde la app antes de que suene. Sin falsas alarmas al llegar a tu auto.</p></div>
-      <div class="tarjeta"><div class="num">03 · SUENA</div><h3>Sirena, luces y relé</h3><p>Sirena a 2500 Hz, LED rojo y un relé para encender luces o cortar un circuito de prueba.</p></div>
-      <div class="tarjeta"><div class="num">04 · AVISA</div><h3>Alerta en tu celular</h3><p>Por WiFi manda una notificación al instante, y la app pone la pantalla en rojo aunque esté cerrada.</p></div>
+    <div class="etq3d" id="e-us1"><i></i>HC-SR04 · retrovisor del conductor</div>
+    <div class="etq3d" id="e-us2"><i></i>2× HC-SR04 · ambos retrovisores</div>
+    <div class="etq3d v" id="e-mc38"><i></i>MC-38 · sensor de puerta</div>
+    <div class="etq3d m" id="e-pir"><i></i>PIR · movimiento en la cabina</div>
+    <div class="etq3d v" id="e-bat"><i></i>18650 · batería de respaldo</div>
+    <div class="etq3d r" id="e-luces"><i></i>Luces + sirena + relé</div>
+
+    <div class="hud" aria-live="off">
+      <div><span>estado</span><b id="hudEstado" class="h-desarmado">DESARMADO</b></div>
+      <div><span>sensor</span><b id="hudDist">sin eco</b></div>
+      <div><span>eco</span><b id="hudEco">— µs</b></div>
+      <div><span>&nbsp;</span><b id="hudCuenta">vigilando</b></div>
     </div>
+
+    <div class="notif3d" id="notif3d" role="status"><div class="ic"><svg width="16" height="18" style="color:#f2f3f4"><use href="#escudo"/></svg></div><div><b>VORK · ahora</b>🚨 ¡Intrusión en tu auto! Alguien se acercó a la puerta del conductor.</div></div>
+
+    <div class="pasos3d">
+      <div class="paso3d portada3d" data-a="-0.2" data-b="0.12">
+        <span class="chip"><i></i>SISTEMA EMBEBIDO · IoT · ANDROID</span>
+        <h1>Nadie toca tu auto <span class="r">sin que lo sepas.</span></h1>
+        <p>VORK es una alarma antirrobo hecha desde cero: Arduino, sensores ultrasónicos, Bluetooth y una app en Kotlin.</p>
+        <div class="desliza">Desliza para ver cómo funciona <span>↓</span></div>
+      </div>
+      <div class="paso3d" data-a="0.15" data-b="0.33"><div class="num">01 · DETECTA</div><h3>Un sensor en el retrovisor</h3><p>El HC-SR04 manda pulsos de ultrasonido hacia atrás, a lo largo de las puertas, y mide cuánto tarda el eco en volver.</p></div>
+      <div class="paso3d" data-a="0.36" data-b="0.57"><div class="num">02 · ESPERA</div><h3>10 segundos de gracia</h3><p>Alguien entró en la zona. Si eres tú, desarmas desde la app antes de que suene. Si no, la cuenta sigue.</p></div>
+      <div class="paso3d" data-a="0.59" data-b="0.74"><div class="num">03 · SUENA Y AVISA</div><h3>Sirena, luces y alerta</h3><p>Sirena a 2500 Hz, luces en rojo, relé activado y una notificación al celular por internet, aunque estés lejos.</p></div>
+      <div class="paso3d" data-a="0.8" data-b="0.95"><div class="num v2">04 · VORK 2.0</div><h3>Ve todo el auto</h3><p>Sensores en los dos retrovisores, sensor magnético en cada puerta, movimiento en la cabina y batería de respaldo por si cortan la corriente.</p></div>
+      <div class="paso3d final3d" data-a="0.96" data-b="1.2"><h3>Ahora pruébalo tú.</h3><div class="metricas"><div><b>819</b><span>líneas de C++</span></div><div><b>2081</b><span>líneas de Kotlin</span></div><div><b>6</b><span>estados</span></div><div><b>9600</b><span>baudios</span></div></div><a class="cta rojo" href="#simulador">▶ Abrir el simulador</a></div>
+    </div>
+    <div class="ticker3d" id="ticker">← ST|DESARMADO|---|80 · esperando…</div>
+    <div class="progreso3d"><b id="barra3d"></b></div>
   </div>
 </section>
 
@@ -647,7 +699,7 @@ footer .cont{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 </section>
 </main>
 
-<footer><div class="cont"><svg class="marca" viewBox="0 0 125 30" style="height:15px;color:var(--txt)"><use href="#vork" fill="currentColor"/></svg><span>Alarma antirrobo inteligente · Proyecto escolar</span><a href="#inicio" style="margin-left:auto">Volver arriba ↑</a></div></footer>
+<footer><div class="cont"><svg class="marca" viewBox="0 0 125 30" style="height:15px;color:var(--txt)"><use href="#vork" fill="currentColor"/></svg><span>Alarma antirrobo inteligente · Proyecto escolar</span><span style="font-size:11.5px">Modelo 3D «Car Concept» de Eric Chadwick / Darmstadt Graphics Group (<a href="https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/CarConcept" rel="noopener">CC BY 4.0</a>), comprimido para la web.</span><a href="#historia" style="margin-left:auto">Volver arriba ↑</a></div></footer>
 
 <script>
 (() => {
@@ -1050,5 +1102,6 @@ version(1);
 setInterval(tick, 50);
 })();
 </script>
+<script type="module" src="vork3d.js"></script>
 </body>
 </html>
