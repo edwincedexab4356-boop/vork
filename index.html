@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VORK · Alarma antirrobo inteligente para tu auto</title>
+<meta name="description" content="VORK protege tu auto: detecta a quien se acerca a las puertas, hace sonar la sirena y te avisa en el celular. Conoce cómo funciona y pruébalo en el simulador.">
+<meta name="theme-color" content="#0a0b0c">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 108'%3E%3Crect width='108' height='108' rx='24' fill='%230a0b0c'/%3E%3Cpath fill='%23F2F3F4' d='M54,22 L80,31 V53 C80,69 68,80 54,86 C40,80 28,69 28,53 V31 Z'/%3E%3Cpath fill='%230A0B0C' d='M41,38 h8 l5,20 l5,-20 h8 l-10,30 h-6 z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,400;100,600;125,800;125,900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --papel:#f4f4f1; --tinta:#0a0b0c; --gris:#6b6f76; --linea:#dcdcd6; --rojo:#e3122b; --verde:#16a34a; --ambar:#d97706;
+  --noche:#0e0f11; --noche2:#17191c; --plata:#c9ccd1;
+  --font:"Archivo", "Segoe UI", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--papel);color:var(--tinta);font:16px/1.55 var(--font);-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+a{color:inherit}
+.cont{max-width:1180px;margin:0 auto;padding:0 20px}
+.marca{display:block;height:22px;width:auto}
+
+/* navegación */
+.nav{position:sticky;top:0;z-index:30;background:#f4f4f1e6;backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
+.nav .cont{display:flex;align-items:center;gap:22px;height:62px}
+.nav .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav .links{display:flex;gap:20px;margin-left:auto;font-size:14px;font-weight:600}
+.nav .links a{text-decoration:none;color:var(--gris)}
+@media (hover:hover){.nav .links a:hover{color:var(--tinta)}}
+@media (max-width:760px){.nav .links{display:none}}
+.cta{display:inline-flex;align-items:center;gap:8px;background:var(--tinta);color:#fff;border:0;border-radius:999px;padding:11px 20px;font-weight:700;font-size:14px;text-decoration:none;transition:transform .15s}
+.cta:active{transform:scale(.97)}
+.cta.rojo{background:var(--rojo)}
+.cta.linea{background:transparent;color:var(--tinta);border:1.5px solid var(--tinta)}
+@media (max-width:760px){.nav .cta{margin-left:auto}}
+
+/* portada */
+.hero{padding:70px 0 40px}
+.hero .cont{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
+@media (max-width:900px){.hero .cont{grid-template-columns:1fr}.hero{padding-top:40px}}
+.eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--rojo)}
+h1{font-size:clamp(40px,6.2vw,76px);line-height:.98;margin:12px 0 18px;font-weight:900;font-stretch:125%;letter-spacing:-.02em}
+h1 em{font-style:normal;color:var(--gris)}
+.lead{font-size:18px;color:#3b3e43;max-width:52ch}
+.botones{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.datos{display:flex;gap:28px;margin-top:34px;flex-wrap:wrap}
+.datos b{display:block;font-size:28px;font-weight:900;font-stretch:125%}
+.datos span{font-size:13px;color:var(--gris)}
+.hero-arte{background:var(--noche);border-radius:28px;padding:18px;position:relative;overflow:hidden}
+.hero-arte svg{display:block;width:100%;height:auto}
+@keyframes barrido{0%{opacity:.15}50%{opacity:.55}100%{opacity:.15}}
+.haz-anim{animation:barrido 2.4s ease-in-out infinite}
+
+/* secciones */
+section{padding:80px 0}
+h2{font-size:clamp(30px,4vw,48px);line-height:1.04;margin:10px 0 14px;font-weight:900;font-stretch:125%;letter-spacing:-.015em}
+.intro{color:#3b3e43;max-width:62ch;font-size:17px}
+.tarjetas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:34px}
+@media (max-width:980px){.tarjetas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.tarjetas{grid-template-columns:1fr}}
+.tarjeta{background:#fff;border:1px solid var(--linea);border-radius:20px;padding:22px}
+.tarjeta .num{font:800 13px var(--mono);color:var(--rojo)}
+.tarjeta h3{margin:10px 0 6px;font-size:20px;font-weight:800;font-stretch:115%}
+.tarjeta p{margin:0;color:#4a4e55;font-size:14.5px}
+
+/* simulador */
+.sim{background:var(--noche);color:#eceef1;border-radius:0}
+.sim .intro{color:#aeb3bb}
+.sim .eyebrow{color:#ff5a6b}
+.simgrid{display:grid;grid-template-columns:minmax(0,1.45fr) 330px;gap:22px;margin-top:30px;align-items:start}
+@media (max-width:980px){.simgrid{grid-template-columns:1fr}}
+.escena{background:var(--noche2);border:1px solid #26292e;border-radius:22px;overflow:hidden}
+.escena .barra{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid #26292e;font-size:13px;color:#aeb3bb}
+.escena .barra b{color:#fff}
+.escena svg{display:block;width:100%;height:auto;touch-action:none}
+.persona{cursor:grab}
+.persona:active{cursor:grabbing}
+.ayuda{font-size:12.5px;color:#8b9099;padding:0 16px 10px}
+.acciones{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;border-top:1px solid #26292e}
+.bt{background:#22252a;border:1px solid #33373e;color:#eceef1;border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:600;transition:transform .12s,background .15s}
+.bt:active{transform:scale(.96)}
+@media (hover:hover){.bt:hover{background:#2c3036}}
+.bt[aria-pressed=true]{background:#fff;color:var(--tinta)}
+.hw{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;padding:14px 16px;border-top:1px solid #26292e}
+@media (max-width:600px){.hw{grid-template-columns:1fr}}
+.lcd{background:#3355d6;border:6px solid #1c2f7a;border-radius:6px;padding:7px 10px;font:600 15px/1.25 var(--mono);color:#e6edff;white-space:pre;letter-spacing:.06em;text-shadow:0 0 5px #b9ccff80;min-width:17ch}
+.piezas{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:#aeb3bb}
+.pz{display:flex;align-items:center;gap:7px}
+.pz i{width:12px;height:12px;border-radius:50%;background:#2f3238;box-shadow:inset 0 -2px 3px #0008}
+.pz.v.on i{background:#22c55e;box-shadow:0 0 10px #22c55e}
+.pz.r.on i{background:#ff3347;box-shadow:0 0 12px #ff3347}
+.pz.b.on i{background:#fbbf24;box-shadow:0 0 10px #fbbf24}
+.pz.re.on i{background:#60a5fa;box-shadow:0 0 10px #60a5fa}
+.umbral{display:flex;align-items:center;gap:10px;padding:0 16px 14px;font-size:13px;color:#aeb3bb;flex-wrap:wrap}
+.umbral input{flex:1;min-width:140px;accent-color:#ff3347}
+.umbral output{font:600 13px var(--mono);color:#fff;min-width:6ch}
+
+/* teléfono */
+.tel{position:relative;width:100%;max-width:330px;margin:0 auto;aspect-ratio:330/660;background:#000;border-radius:44px;padding:12px;box-shadow:0 30px 60px #0008,inset 0 0 0 2px #2a2d33}
+.pantalla{position:relative;height:100%;border-radius:34px;overflow:hidden;background:#0a0b0c;color:#f2f3f4;display:flex;flex-direction:column;font-size:14px}
+.isla{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:90px;height:24px;background:#000;border-radius:20px;z-index:5}
+.sbar{display:flex;justify-content:space-between;padding:12px 22px 4px;font:600 12px var(--mono);color:#cfd2d6}
+.ahead{display:flex;align-items:center;gap:8px;padding:10px 16px}
+.ahead .marca{height:16px}
+.ahead .con{margin-left:auto;font-size:11px;display:flex;align-items:center;gap:5px;color:#9aa0a8}
+.ahead .con i{width:7px;height:7px;border-radius:50%;background:#22c55e}
+.vistaApp{flex:1;overflow:auto;padding:4px 14px 10px}
+.vistaApp[hidden]{display:none}
+.bloque{border-radius:18px;padding:16px;margin-top:6px;transition:background .3s}
+.bloque small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+.bloque b{display:block;font-size:26px;font-weight:900;font-stretch:125%;margin:2px 0}
+.bloque span{font-size:13px;opacity:.9}
+.bA{display:block;width:100%;margin-top:10px;padding:14px;border-radius:14px;border:0;font-weight:800;font-size:15px;letter-spacing:.04em;background:#f2f3f4;color:#0a0b0c}
+.bB{display:block;width:100%;margin-top:8px;padding:12px;border-radius:14px;border:1px solid #33373e;background:transparent;color:#f2f3f4;font-weight:700;font-size:14px}
+.bA:active,.bB:active{transform:scale(.98)}
+.fichas{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.ficha{background:#17191c;border-radius:14px;padding:10px 12px}
+.ficha small{display:block;font-size:10.5px;color:#9aa0a8;letter-spacing:.08em;text-transform:uppercase}
+.ficha b{font:700 16px var(--mono)}
+.mic{display:flex;align-items:center;gap:10px;width:100%;margin-top:10px;background:#17191c;border:1px solid #26292e;border-radius:14px;padding:10px 12px;color:#f2f3f4;font-size:13px;text-align:left}
+.mic .bola{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#26292e;flex:none}
+.mic.oye .bola{background:var(--rojo);box-shadow:0 0 0 6px #e3122b40}
+.mic[disabled]{opacity:.45}
+.navApp{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #1e2024;padding:8px 6px 16px}
+.navApp button{background:none;border:0;color:#7d838c;font-size:11.5px;font-weight:600;padding:6px 0}
+.navApp button[aria-selected=true]{color:#fff}
+.evt{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #1e2024;font-size:13px}
+.evt i{width:8px;height:8px;border-radius:50%;background:#4b5058;margin-top:6px;flex:none}
+.evt.a i{background:var(--rojo)}
+.evt b{display:block;font-weight:700}
+.evt span{font:12px var(--mono);color:#8b9099}
+.login{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.login .escudo{width:64px;height:64px}
+.login h4{margin:12px 0 2px;font-size:18px}
+.login p{margin:0 0 12px;color:#9aa0a8;font-size:12.5px}
+.puntos{display:flex;gap:12px;margin:6px 0 16px}
+.puntos i{width:13px;height:13px;border-radius:50%;border:2px solid #6b7078}
+.puntos i.on{background:#f2f3f4;border-color:#f2f3f4}
+.teclado{display:grid;grid-template-columns:repeat(3,64px);gap:10px}
+.teclado button{height:52px;border-radius:50%;border:0;background:#1d2024;color:#f2f3f4;font-size:20px;font-weight:600}
+.teclado button:active{background:#33373e}
+.pista{margin-top:14px;font-size:12px;color:#ff8e9a}
+.err{animation:sacudir .35s}
+@keyframes sacudir{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.notif{position:absolute;left:10px;right:10px;top:40px;z-index:6;background:#1f2226f2;backdrop-filter:blur(8px);border-radius:16px;padding:10px 12px;font-size:12.5px;display:flex;gap:10px;transform:translateY(-160px);opacity:0;transition:transform .35s cubic-bezier(.3,.8,.3,1),opacity .2s}
+.notif.ver{transform:none;opacity:1}
+.notif .ic{width:30px;height:30px;border-radius:8px;background:#0a0b0c;display:grid;place-items:center;flex:none;border:1px solid #33373e}
+.notif b{display:block}
+.roja{position:absolute;inset:0;z-index:7;background:#c3001b;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:#fff}
+.roja.ver{display:flex}
+.roja h4{font-size:30px;font-weight:900;font-stretch:125%;margin:10px 0 4px}
+.roja p{margin:0 0 18px;font-size:13px;opacity:.95}
+.roja .bA{background:#fff;color:#c3001b}
+.roja .bB{border-color:#ffffff80}
+@keyframes latir{50%{transform:scale(1.08)}}
+.roja.ver .escudo{animation:latir .6s ease-in-out infinite}
+.velocidad{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px;font-size:13px;color:#aeb3bb}
+
+/* estados */
+.estados{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:34px;counter-reset:paso}
+@media (max-width:980px){.estados{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.est{background:#fff;border:1px solid var(--linea);border-radius:18px;padding:16px;position:relative;transition:transform .2s,box-shadow .2s,border-color .2s}
+.est .pt{width:12px;height:12px;border-radius:50%;margin-bottom:10px}
+.est h4{margin:0 0 4px;font-size:15px;font-weight:800;font-stretch:115%}
+.est p{margin:0;font-size:13px;color:#4a4e55}
+.est.ahora{border-color:var(--tinta);box-shadow:0 10px 30px #0000001f;transform:translateY(-4px)}
+.est.ahora::after{content:"AHORA EN EL SIMULADOR";position:absolute;top:-10px;right:12px;background:var(--tinta);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.1em;padding:3px 8px;border-radius:999px}
+
+/* componentes */
+.comp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:34px}
+@media (max-width:900px){.comp{grid-template-columns:1fr}}
+.comp .tarjeta ul{margin:10px 0 0;padding-left:18px;color:#4a4e55;font-size:14.5px}
+.comp .tarjeta li{margin:4px 0}
+.comp code{font:600 12.5px var(--mono);background:#f0f0ec;padding:1px 6px;border-radius:5px}
+
+/* app */
+.app2{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+@media (max-width:900px){.app2{grid-template-columns:1fr}}
+.lista{list-style:none;margin:20px 0 0;padding:0}
+.lista li{display:grid;grid-template-columns:110px 1fr;gap:14px;padding:14px 0;border-top:1px solid var(--linea)}
+.lista b{font-weight:800}
+.lista span{color:#4a4e55;font-size:15px}
+.oficial{background:var(--tinta);color:#fff;border-radius:24px;padding:30px}
+.oficial p{color:#c4c7cc}
+.oficial svg{height:34px;width:auto}
+
+footer{padding:40px 0 60px;border-top:1px solid var(--linea);color:var(--gris);font-size:13px}
+footer .cont{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.haz-anim,.roja.ver .escudo{animation:none}.notif{transition:none}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="vork" viewBox="0 0 125 30"><path fill-rule="evenodd" d="M0,0 h7 l7,20 l7,-20 h7 l-11,30 h-6 z M46,0 a15,15 0 1,0 0,30 a15,15 0 1,0 0,-30 z M46,6.5 a8.5,8.5 0 1,1 0,17 a8.5,8.5 0 1,1 0,-17 z M67,0 h15 a10,10 0 0,1 3,19.5 l7,10.5 h-8 l-6,-10 h-4 v10 h-7 z M74,6 v8 h7.5 a4,4 0 0,0 0,-8 z M97,0 h7 v12 l11,-12 h9 l-13,14 l14,16 h-9 l-12,-14 v14 h-7 z"/></symbol>
+    <symbol id="escudo" viewBox="26 22 56 66"><path fill="currentColor" d="M54,22 L80,31 V53 C80,69 68,80 54,86 C40,80 28,69 28,53 V31 Z"/><path fill="#0A0B0C" d="M41,38 h8 l5,20 l5,-20 h8 l-10,30 h-6 z"/></symbol>
+  </defs>
+</svg>
+
+<nav class="nav">
+  <div class="cont">
+    <a class="logo" href="#inicio" aria-label="VORK, inicio"><svg class="marca" viewBox="0 0 125 30" style="color:var(--tinta)"><use href="#vork" fill="currentColor"/></svg></a>
+    <div class="links"><a href="#que-hace">Qué hace</a><a href="#simulador">Simulador</a><a href="#como">Cómo funciona</a><a href="#piezas">Componentes</a><a href="#app">La app</a></div>
+    <a class="cta" href="#simulador">Probar ahora</a>
+  </div>
+</nav>
+
+<header class="hero" id="inicio">
+  <div class="cont">
+    <div>
+      <div class="eyebrow">Alarma antirrobo inteligente</div>
+      <h1>Tu auto vigilado.<br><em>Tú, avisado.</em></h1>
+      <p class="lead">VORK detecta a quien se acerca a las puertas de tu auto, hace sonar la sirena y te avisa en el celular. Desde la app lo armas, lo desarmas y ves todo lo que pasó, con fecha y hora.</p>
+      <div class="botones"><a class="cta rojo" href="#simulador">▶ Probar el simulador</a><a class="cta linea" href="#como">Cómo funciona</a></div>
+      <div class="datos">
+        <div><b>10 s</b><span>para desarmar al llegar</span></div>
+        <div><b>3 min</b><span>de sirena como máximo</span></div>
+        <div><b>24/7</b><span>avisos al celular</span></div>
+      </div>
+    </div>
+    <div class="hero-arte" aria-hidden="true">
+      <svg viewBox="0 0 520 300">
+        <rect width="520" height="300" fill="#0e0f11"/>
+        <g stroke="#2a2d32" stroke-width="3"><path d="M40 40V260 M480 40V260"/></g>
+        <path class="haz-anim" d="M342 92 L190 70 L190 114 Z" fill="#ff3347"/>
+        <g transform="translate(110 100)">
+          <rect x="0" y="0" width="300" height="110" rx="38" fill="#c9ccd1"/>
+          <rect x="70" y="10" width="150" height="90" rx="22" fill="#24272c"/>
+          <rect x="88" y="18" width="114" height="74" rx="14" fill="#3a3e45"/>
+          <rect x="226" y="-10" width="16" height="12" rx="3" fill="#c9ccd1"/>
+          <circle cx="234" cy="-8" r="4" fill="#ff3347"/>
+          <path d="M180 0V110 M110 0V110" stroke="#9aa0a8" stroke-width="1.5"/>
+        </g>
+        <text x="260" y="262" text-anchor="middle" fill="#8b9099" font-size="12" font-family="Archivo, sans-serif" letter-spacing="1.5">SENSOR EN EL RETROVISOR</text><text x="260" y="280" text-anchor="middle" fill="#5f646c" font-size="10.5" font-family="Archivo, sans-serif" letter-spacing="1">MIDE DE LA PUERTA DELANTERA A LA TRASERA</text>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<section id="que-hace">
+  <div class="cont">
+    <div class="eyebrow">Qué hace</div>
+    <h2>Cuatro cosas, muy bien hechas.</h2>
+    <p class="intro">VORK es una alarma construida con Arduino, un sensor ultrasónico y una app para Android. Así protege tu auto:</p>
+    <div class="tarjetas">
+      <div class="tarjeta"><div class="num">01</div><h3>Detecta</h3><p>Un sensor ultrasónico en el retrovisor del conductor mide hacia atrás, de la puerta delantera a la trasera. Si alguien entra en esa zona, VORK lo sabe.</p></div>
+      <div class="tarjeta"><div class="num">02</div><h3>Te da tiempo</h3><p>Al detectar a alguien empieza una cuenta atrás de 10 segundos. Si eres tú, desarmas desde la app y no suena nada.</p></div>
+      <div class="tarjeta"><div class="num">03</div><h3>Suena y avisa</h3><p>Si nadie desarma, suena la sirena, parpadea la luz roja y te llega una alerta al celular por internet, aunque estés lejos.</p></div>
+      <div class="tarjeta"><div class="num">04</div><h3>Recuerda</h3><p>Cada evento queda guardado con fecha y hora: quién armó, quién desarmó y cuándo hubo una intrusión.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sim" id="simulador">
+  <div class="cont">
+    <div class="eyebrow">Simulador</div>
+    <h2>Pruébalo tú mismo.</h2>
+    <p class="intro">Entra a la app con la clave de demostración, arma la alarma y arrastra a la persona hacia la puerta del auto. Todo lo que ves funciona igual que en la alarma real.</p>
+    <div class="velocidad">Tiempos:
+      <button class="bt" id="vRapido" aria-pressed="true">Demo rápida (5 s)</button>
+      <button class="bt" id="vReal" aria-pressed="false">Como el real (30 s / 10 s)</button>
+      <button class="bt" id="bSonido" aria-pressed="false">🔊 Sonido activado</button>
+    </div>
+
+    <div class="simgrid">
+      <div class="escena">
+        <div class="barra">Sensor: <b id="dist">sin eco</b> · Se activa a menos de <b id="umbralTxt">80 cm</b><span style="margin-left:auto">Estado: <b id="estadoTxt">DESARMADO</b></span></div>
+        <svg id="lienzo" viewBox="0 0 560 320" aria-label="Vista superior del auto y la persona">
+          <defs><linearGradient id="hazG" x1="1" x2="0"><stop offset="0" stop-color="#ff3347" stop-opacity=".55"/><stop offset="1" stop-color="#ff3347" stop-opacity=".08"/></linearGradient></defs>
+          <rect width="560" height="320" fill="#17191c"/>
+          <g stroke="#2a2d32" stroke-width="3"><path d="M60 30V290 M500 30V290"/></g>
+          <path d="M60 290H500" stroke="#2a2d32" stroke-width="3" stroke-dasharray="14 10"/>
+          <!-- haz del sensor -->
+          <path id="haz" d="" fill="url(#hazG)"/>
+          <!-- auto -->
+          <g transform="translate(130 120)">
+            <rect x="0" y="0" width="300" height="110" rx="38" fill="#c9ccd1"/>
+            <rect x="70" y="10" width="150" height="90" rx="22" fill="#24272c"/>
+            <rect x="88" y="18" width="114" height="74" rx="14" fill="#3a3e45"/>
+            <path d="M180 0V110 M110 0V110" stroke="#8b9099" stroke-width="1.5"/>
+            <rect x="282" y="18" width="10" height="20" rx="3" fill="#fff" opacity=".7"/><rect x="282" y="72" width="10" height="20" rx="3" fill="#fff" opacity=".7"/>
+            <rect x="6" y="18" width="8" height="20" rx="3" id="trasera1" fill="#7a1420"/><rect x="6" y="72" width="8" height="20" rx="3" id="trasera2" fill="#7a1420"/>
+            <rect x="207" y="-12" width="18" height="13" rx="3" fill="#c9ccd1"/>
+            <circle id="sensorLed" cx="216" cy="-9" r="4" fill="#555"/>
+          </g>
+          <text x="275" y="178" fill="#8b9099" font-size="9" text-anchor="middle" font-family="Archivo, sans-serif" letter-spacing="1">TRASERA</text>
+          <text x="345" y="178" fill="#8b9099" font-size="9" text-anchor="middle" font-family="Archivo, sans-serif" letter-spacing="1">DELANTERA</text>
+          <text x="346" y="96" fill="#cfd2d6" font-size="10" font-family="Archivo, sans-serif">HC-SR04</text>
+          <!-- persona -->
+          <g id="persona" class="persona" tabindex="0" role="slider" aria-label="Persona: arrástrala hacia el auto">
+            <circle r="20" fill="#0e0f11" stroke="#f2f3f4" stroke-width="3"/>
+            <circle r="7" cy="-5" fill="#f2f3f4"/><path d="M-10 12 a10 9 0 0 1 20 0" fill="#f2f3f4"/>
+          </g>
+        </svg>
+        <div class="ayuda">Arrastra a la persona con el dedo o el ratón. El sensor solo ve lo que entra en la franja roja, al lado de las puertas.</div>
+        <div class="umbral"><label for="rUmbral">Distancia de detección</label><input type="range" id="rUmbral" min="20" max="200" step="5" value="80"><output id="oUmbral">80 cm</output></div>
+        <div class="acciones">
+          <button class="bt" id="aAcerca">🚶 Alguien se acerca a la puerta</button>
+          <button class="bt" id="aAleja">↩ Se aleja</button>
+          <button class="bt" id="aDueno">🔑 Llega el dueño</button>
+        </div>
+        <div class="hw">
+          <div class="lcd" id="lcd">DESARMADO
+SIN HORA  ---cm</div>
+          <div class="piezas">
+            <span class="pz v" id="ledV"><i></i>LED verde</span>
+            <span class="pz r" id="ledR"><i></i>LED rojo</span>
+            <span class="pz b" id="buz"><i></i>Sirena</span>
+            <span class="pz re" id="rele"><i></i>Relé</span>
+            <span class="pz"><i style="background:#3b82f6"></i>Bluetooth</span>
+            <span class="pz"><i style="background:#22c55e"></i>WiFi</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- teléfono -->
+      <div class="tel" aria-label="App VORK en el celular (demostración)">
+        <div class="pantalla">
+          <div class="isla"></div>
+          <div class="sbar"><span id="relojTel">9:41</span><span>▮▮▮ ◔</span></div>
+          <div class="notif" id="notif" role="status"><div class="ic"><svg width="16" height="18" style="color:#f2f3f4"><use href="#escudo"/></svg></div><div><b>VORK</b><span id="notifTxt"></span></div></div>
+
+          <div class="login" id="login">
+            <svg class="escudo" style="color:#f2f3f4"><use href="#escudo"/></svg>
+            <h4>Bienvenido a VORK</h4>
+            <p>Escribe tu clave para entrar</p>
+            <div class="puntos" id="puntos"><i></i><i></i><i></i><i></i></div>
+            <div class="teclado" id="teclado"></div>
+            <div class="pista">Clave de demostración: 1234</div>
+          </div>
+
+          <div id="appDentro" style="display:none;flex-direction:column;flex:1;min-height:0">
+            <div class="ahead"><svg class="marca" viewBox="0 0 125 30" style="color:#f2f3f4"><use href="#vork" fill="currentColor"/></svg><span class="con"><i></i>HC-05</span></div>
+            <div class="vistaApp" id="vPanel">
+              <div class="bloque" id="bloque"><small>Estado</small><b id="bTit">Desarmada</b><span id="bDet">Toca “Armar” cuando te vayas</span></div>
+              <button class="bA" id="bA">ARMAR</button>
+              <button class="bB" id="bB" hidden>Silenciar</button>
+              <div class="fichas">
+                <div class="ficha"><small>Sensor</small><b id="fDist">—</b></div>
+                <div class="ficha"><small>Usuario</small><b>Demo</b></div>
+              </div>
+              <button class="mic" id="mic"><span class="bola">🎤</span><span><b>Hey VORK</b><br><span id="micTxt">Toca y di: “armar”, “desarmar” o “estado”</span></span></button>
+            </div>
+            <div class="vistaApp" id="vReportes" hidden><div id="eventos"></div></div>
+            <div class="vistaApp" id="vAjustes" hidden>
+              <div class="ficha" style="margin-top:6px"><small>Distancia de detección</small><b id="ajUmbral">80 cm</b></div>
+              <div class="ficha" style="margin-top:8px"><small>Tiempo para salir</small><b id="ajSal">5 s</b></div>
+              <div class="ficha" style="margin-top:8px"><small>Tiempo para desarmar al llegar</small><b id="ajEnt">5 s</b></div>
+              <button class="bB" id="bProbar">Probar LEDs, sirena y relé</button>
+              <button class="bB" id="bSalir">Cerrar sesión</button>
+            </div>
+            <div class="navApp" role="tablist">
+              <button role="tab" aria-selected="true" data-v="vPanel">Panel</button>
+              <button role="tab" aria-selected="false" data-v="vReportes">Reportes</button>
+              <button role="tab" aria-selected="false" data-v="vAjustes">Ajustes</button>
+            </div>
+          </div>
+
+          <div class="roja" id="roja" role="alertdialog" aria-label="Intrusión">
+            <svg class="escudo" width="70" height="80" style="color:#fff"><use href="#escudo"/></svg>
+            <h4>¡Intrusión!</h4>
+            <p id="rojaTxt">Alguien se acercó a tu auto.</p>
+            <button class="bA" id="rSil">Silenciar</button>
+            <button class="bB" id="rDes">Desarmar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="como">
+  <div class="cont">
+    <div class="eyebrow">Cómo funciona</div>
+    <h2>Seis estados, cero sorpresas.</h2>
+    <p class="intro">El Arduino de VORK siempre está en uno de estos estados. Mientras usas el simulador, el estado actual se marca aquí.</p>
+    <div class="estados">
+      <div class="est" data-e="DESARMADO"><div class="pt" style="background:#16a34a"></div><h4>Desarmada</h4><p>No vigila. LED verde encendido. Puedes abrir el auto tranquilo.</p></div>
+      <div class="est" data-e="SALIDA"><div class="pt" style="background:#d97706"></div><h4>Saliendo</h4><p>Al armar tienes 30 s para alejarte. Pita suave y parpadea el verde.</p></div>
+      <div class="est" data-e="ARMADO"><div class="pt" style="background:#0a0b0c"></div><h4>Armada</h4><p>Vigila la zona de las puertas. Un destello rojo cada 2 s.</p></div>
+      <div class="est" data-e="ENTRADA"><div class="pt" style="background:#ea580c"></div><h4>Detección</h4><p>Alguien entró en la zona: 10 s para desarmar desde la app.</p></div>
+      <div class="est" data-e="ALARMA"><div class="pt" style="background:#e3122b"></div><h4>Alarma</h4><p>Sirena, luz roja, relé y aviso al celular. Máximo 3 minutos.</p></div>
+      <div class="est" data-e="SILENCIADA"><div class="pt" style="background:#7c3aed"></div><h4>Silenciada</h4><p>Se calla la sirena. A los 5 min vuelve a vigilar sola.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="piezas" style="padding-top:20px">
+  <div class="cont">
+    <div class="eyebrow">Componentes</div>
+    <h2>Lo que hay dentro.</h2>
+    <div class="comp">
+      <div class="tarjeta"><h3>El cerebro</h3><ul><li><b>Arduino UNO R4 WiFi</b>: controla todo y manda los avisos por internet.</li><li><b>Reloj RTC</b>: guarda la fecha y hora de cada evento.</li><li><b>Pantalla LCD 16×2</b>: muestra el estado y la distancia.</li></ul></div>
+      <div class="tarjeta"><h3>Los sentidos</h3><ul><li><b>Sensor ultrasónico HC-SR04</b> en el retrovisor del conductor: mide hacia atrás, a lo largo de las puertas.</li><li><b>Módulo Bluetooth HC-05</b>: conecta la alarma con la app.</li></ul></div>
+      <div class="tarjeta"><h3>La respuesta</h3><ul><li><b>Sirena</b> (buzzer) de 2500 Hz.</li><li><b>LED rojo y verde</b> para ver el estado de lejos.</li><li><b>Relé</b> que se activa con la alarma (para luces o un corte de prueba).</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section id="app">
+  <div class="cont app2">
+    <div>
+      <div class="eyebrow">La app</div>
+      <h2>Todo desde tu celular.</h2>
+      <p class="intro">La app VORK para Android se conecta a la alarma por Bluetooth. Cada persona entra con su propia clave.</p>
+      <ul class="lista">
+        <li><b>Panel</b><span>Armar, desarmar y silenciar con un toque. Estado en grande y en color.</span></li>
+        <li><b>Auto</b><span>Dibujo del auto con el sensor, la distancia en vivo y el estado de cada pieza.</span></li>
+        <li><b>Reportes</b><span>Eventos de hoy, 7 días, 30 días o todo, y se pueden imprimir o guardar en PDF.</span></li>
+        <li><b>Usuarios</b><span>Los administradores agregan o quitan personas y eligen quién es administrador.</span></li>
+        <li><b>Hey VORK</b><span>Control por voz: “Hey VORK, arma la alarma”.</span></li>
+        <li><b>Alerta</b><span>Si hay intrusión, la pantalla del celular se pone roja aunque la app esté cerrada.</span></li>
+      </ul>
+    </div>
+    <div class="oficial">
+      <svg viewBox="0 0 125 30" style="color:#fff"><use href="#vork" fill="currentColor"/></svg>
+      <h3 style="font-size:24px;margin:18px 0 6px;font-weight:800">La app oficial</h3>
+      <p>Esta página explica VORK y deja probarlo con un simulador. La alarma real se controla con la <b style="color:#fff">app VORK para Android</b>, que es la que se presenta.</p>
+      <p style="margin-bottom:0">Clave de demostración del simulador: <b style="color:#fff">1234</b>.</p>
+    </div>
+  </div>
+</section>
+
+<footer><div class="cont"><svg class="marca" viewBox="0 0 125 30" style="height:16px;color:var(--tinta)"><use href="#vork" fill="currentColor"/></svg><span>Alarma antirrobo inteligente · Proyecto escolar</span><a href="#inicio" style="margin-left:auto">Volver arriba ↑</a></div></footer>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+/* ---------- Estado de la alarma (igual que el Arduino) ---------- */
+const TIEMPOS = { rapido:{SALIDA:5, ENTRADA:5, ALARMA:30, SILENCIADA:20}, real:{SALIDA:30, ENTRADA:10, ALARMA:180, SILENCIADA:300} };
+const S = { estado:'DESARMADO', desde:performance.now(), umbral:80, dist:null, deteccion:0, modo:'rapido', sesion:false, sonido:true, ultimaAlerta:'' };
+const SENSOR = {x:346, y:110}, CARRIL = 92;   // centro de la franja que mide el sensor
+const P = {x:90, y:60};                        // persona
+function t(e){ return TIEMPOS[S.modo][e] || 0; }
+function seg(){ return (performance.now() - S.desde)/1000; }
+function restante(){ return Math.max(0, Math.ceil(t(S.estado) - seg())); }
+
+function hora(){ return new Date().toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); }
+const eventos = [];
+function evento(txt, alerta){
+  eventos.unshift({h:hora(), txt, alerta});
+  if (eventos.length > 50) eventos.pop();
+  $('eventos').innerHTML = eventos.map(e => `<div class="evt${e.alerta?' a':''}"><i></i><div><b>${e.txt}</b><span>${e.h}</span></div></div>`).join('');
+}
+function cambiar(e){ S.estado = e; S.desde = performance.now(); pintar(); }
+let notifT;
+function notificar(txt){ $('notifTxt').textContent = txt; $('notif').classList.add('ver'); clearTimeout(notifT); notifT = setTimeout(()=>$('notif').classList.remove('ver'), 3800); }
+
+function armar(quien){
+  if (S.estado !== 'DESARMADO') return;
+  cambiar('SALIDA'); evento('Alarma armada'+(quien?' ('+quien+')':''));
+}
+function desarmar(quien){
+  if (S.estado === 'DESARMADO') return;
+  cambiar('DESARMADO'); evento('Alarma desarmada'+(quien?' ('+quien+')':''));
+  notificar('Alarma desarmada');
+}
+function silenciar(){
+  if (S.estado !== 'ALARMA') return;
+  cambiar('SILENCIADA'); evento('Sirena silenciada');
+}
+
+function tick(){
+  const s = seg();
+  // sensor
+  const enCarril = Math.abs(P.y - CARRIL) < 30 && P.x < SENSOR.x - 10;
+  S.dist = enCarril ? Math.max(2, Math.round(SENSOR.x - P.x - 20)) : null;
+  if (S.dist !== null && S.dist > 400) S.dist = null;
+  const intruso = S.dist !== null && S.dist < S.umbral;
+  switch (S.estado) {
+    case 'SALIDA': if (s >= t('SALIDA')) { cambiar('ARMADO'); evento('Vigilando'); notificar('Alarma armada: vigilando tu auto'); } break;
+    case 'ARMADO': if (intruso) { S.deteccion = S.dist; cambiar('ENTRADA'); evento('Detección a '+S.deteccion+' cm'); notificar('Detección a '+S.deteccion+' cm. Si eres tú, desarma.'); } break;
+    case 'ENTRADA': if (s >= t('ENTRADA')) { cambiar('ALARMA'); S.ultimaAlerta = hora(); evento('¡Intrusión a '+S.deteccion+' cm!', true); notificar('🚨 ¡INTRUSIÓN en tu auto!'); } break;
+    case 'ALARMA': if (s >= t('ALARMA')) { cambiar('ARMADO'); evento('Fin de la sirena ('+(S.modo==='real'?'3 min':'demo')+')'); } break;
+    case 'SILENCIADA': if (s >= t('SILENCIADA')) { cambiar('ARMADO'); evento('Vigilando de nuevo'); } break;
+  }
+  pintar();
+}
+
+/* ---------- Sonido: el buzzer del Arduino a 2500 Hz ---------- */
+let ctx = null, osc = null, gan = null;
+function audio(){ if (!ctx) { try { ctx = new (window.AudioContext||window.webkitAudioContext)(); osc = ctx.createOscillator(); gan = ctx.createGain(); osc.type='square'; osc.frequency.value = 2500; gan.gain.value = 0; osc.connect(gan); gan.connect(ctx.destination); osc.start(); } catch { ctx = null; } } if (ctx && ctx.state==='suspended') ctx.resume(); }
+function buzzer(on){ if (gan) gan.gain.setTargetAtTime(on && S.sonido ? 0.035 : 0, ctx.currentTime, 0.005); }
+document.addEventListener('pointerdown', audio, {once:false});
+
+/* ---------- Pintar ---------- */
+const VISTA = {
+  DESARMADO:{tit:'Desarmada', det:'Toca “Armar” cuando te vayas', bg:'#14532d', a:'ARMAR'},
+  SALIDA:{tit:'Saliendo', det:'', bg:'#78350f', a:'CANCELAR'},
+  ARMADO:{tit:'Armada', det:'Vigilando las puertas', bg:'#1f2937', a:'DESARMAR'},
+  ENTRADA:{tit:'¡Detección!', det:'', bg:'#9a3412', a:'DESARMAR'},
+  ALARMA:{tit:'¡INTRUSIÓN!', det:'', bg:'#b91c1c', a:'DESARMAR'},
+  SILENCIADA:{tit:'Silenciada', det:'', bg:'#4c1d95', a:'DESARMAR'}
+};
+function pintar(){
+  const now = performance.now(), e = S.estado, v = VISTA[e], r = restante(), el = now - S.desde;
+  // LEDs y sirena como en el sketch
+  let verde=false, rojo=false, sonido=false;
+  switch (e) {
+    case 'DESARMADO': verde = true; break;
+    case 'SALIDA': verde = Math.floor(now/500)%2===0; sonido = (el%2000) < 150; break;
+    case 'ARMADO': rojo = (now%2000) < 100; break;
+    case 'ENTRADA': rojo = Math.floor(now/500)%2===0; sonido = (el%1000) < 200; break;
+    case 'ALARMA': rojo = Math.floor(now/125)%2===0; sonido = true; break;
+    case 'SILENCIADA': rojo = Math.floor(now/1000)%2===0; break;
+  }
+  if (S.probando) { rojo = verde = true; sonido = true; }
+  $('ledV').classList.toggle('on', verde); $('ledR').classList.toggle('on', rojo);
+  $('buz').classList.toggle('on', sonido); $('rele').classList.toggle('on', e==='ALARMA' || !!S.probando);
+  buzzer(sonido);
+  const intermit = e==='ALARMA' && Math.floor(now/250)%2===0;
+  $('trasera1').setAttribute('fill', intermit ? '#ff3347' : '#7a1420'); $('trasera2').setAttribute('fill', intermit ? '#ff3347' : '#7a1420');
+  // sensor y haz
+  const vigila = e==='ARMADO' || e==='ENTRADA' || e==='ALARMA' || e==='SILENCIADA';
+  const largo = S.umbral * 1.0;
+  $('haz').setAttribute('d', `M${SENSOR.x} ${SENSOR.y-6} L${SENSOR.x-largo} ${CARRIL-30} L${SENSOR.x-largo} ${CARRIL+30} L${SENSOR.x} ${SENSOR.y+2} Z`);
+  $('haz').setAttribute('opacity', vigila ? '1' : '.35');
+  $('sensorLed').setAttribute('fill', S.dist!==null && S.dist < S.umbral ? '#ff3347' : vigila ? '#22c55e' : '#555');
+  $('persona').setAttribute('transform', `translate(${P.x} ${P.y})`);
+  $('dist').textContent = S.dist===null ? 'sin eco' : S.dist+' cm';
+  $('estadoTxt').textContent = e;
+  // LCD (mismos textos que el Arduino)
+  const pad = s => (s+' '.repeat(16)).slice(0,16);
+  let l1 = e==='SALIDA' ? 'SALIDA EN '+r+'s' : e==='ENTRADA' ? 'DESARMA EN '+r+'s' : e==='ALARMA' ? '!! INTRUSION !!' : e;
+  const h = new Date(); const hh = [h.getHours(),h.getMinutes(),h.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+  let l2 = (S.ultimaAlerta && (e==='ALARMA'||e==='SILENCIADA')) ? 'ALERTA '+S.ultimaAlerta.slice(0,8) : hh+'  '+(S.dist===null?'---':String(S.dist).padStart(3,' '))+'cm';
+  $('lcd').textContent = pad(l1)+'\n'+pad(l2);
+  // app
+  $('bloque').style.background = v.bg;
+  $('bTit').textContent = v.tit;
+  $('bDet').textContent = e==='SALIDA' ? 'Aléjate: se arma en '+r+' s' : e==='ENTRADA' ? 'Detección a '+S.deteccion+' cm · suena en '+r+' s' : e==='ALARMA' ? 'Sirena sonando · intrusión a '+S.deteccion+' cm' : e==='SILENCIADA' ? 'Vuelve a vigilar en '+r+' s' : v.det;
+  $('bA').textContent = v.a;
+  $('bB').hidden = e !== 'ALARMA';
+  $('fDist').textContent = S.dist===null ? '—' : S.dist+' cm';
+  $('roja').classList.toggle('ver', e==='ALARMA' && S.sesion);
+  $('rojaTxt').textContent = 'Alguien se acercó a '+S.deteccion+' cm de tu auto.';
+  $('ajSal').textContent = t('SALIDA')+' s'; $('ajEnt').textContent = t('ENTRADA')+' s'; $('ajUmbral').textContent = S.umbral+' cm';
+  $('relojTel').textContent = h.getHours()+':'+String(h.getMinutes()).padStart(2,'0');
+  // tarjetas de estados
+  document.querySelectorAll('.est').forEach(d => d.classList.toggle('ahora', d.dataset.e === e));
+}
+
+/* ---------- Persona: arrastrar y animar ---------- */
+const svg = $('lienzo');
+function aSvg(ev){ const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+let arrastrando = false, anim = null;
+function limitar(){ P.x = Math.min(540, Math.max(20, P.x)); P.y = Math.min(300, Math.max(20, P.y)); if (P.x > 120 && P.x < 440 && P.y > 108 && P.y < 242) P.y = P.y < 175 ? 108 : 242; }
+$('persona').addEventListener('pointerdown', ev => { arrastrando = true; cancelAnimationFrame(anim); $('persona').setPointerCapture(ev.pointerId); });
+$('persona').addEventListener('pointermove', ev => { if (!arrastrando) return; const p = aSvg(ev); P.x = p.x; P.y = p.y; limitar(); pintar(); });
+$('persona').addEventListener('pointerup', () => arrastrando = false);
+$('persona').addEventListener('keydown', ev => { const d = 10; if (ev.key==='ArrowLeft') P.x-=d; else if (ev.key==='ArrowRight') P.x+=d; else if (ev.key==='ArrowUp') P.y-=d; else if (ev.key==='ArrowDown') P.y+=d; else return; ev.preventDefault(); limitar(); pintar(); });
+function irA(x, y, ms, fin){
+  cancelAnimationFrame(anim);
+  const x0 = P.x, y0 = P.y, t0 = performance.now();
+  const paso = now => { const k = Math.min(1,(now-t0)/ms), e = k<.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2; P.x = x0+(x-x0)*e; P.y = y0+(y-y0)*e; pintar(); if (k<1) anim = requestAnimationFrame(paso); else fin && fin(); };
+  anim = requestAnimationFrame(paso);
+}
+$('aAcerca').onclick = () => irA(300, CARRIL, 1800);
+$('aAleja').onclick = () => irA(90, 60, 1500);
+$('aDueno').onclick = () => irA(300, CARRIL, 1800, () => { if (S.estado==='ENTRADA' || S.estado==='ALARMA' || S.estado==='SILENCIADA') { desarmar('Dueño'); } else if (S.estado!=='DESARMADO') desarmar('Dueño'); });
+
+$('rUmbral').oninput = e => { S.umbral = +e.target.value; $('oUmbral').textContent = S.umbral+' cm'; $('umbralTxt').textContent = S.umbral+' cm'; pintar(); };
+$('vRapido').onclick = () => { S.modo='rapido'; $('vRapido').setAttribute('aria-pressed','true'); $('vReal').setAttribute('aria-pressed','false'); pintar(); };
+$('vReal').onclick = () => { S.modo='real'; $('vReal').setAttribute('aria-pressed','true'); $('vRapido').setAttribute('aria-pressed','false'); pintar(); };
+$('bSonido').onclick = () => { S.sonido = !S.sonido; $('bSonido').textContent = S.sonido ? '🔊 Sonido activado' : '🔇 Sonido apagado'; };
+
+/* ---------- App: login ---------- */
+let clave = '';
+const tec = $('teclado');
+['1','2','3','4','5','6','7','8','9','','0','⌫'].forEach(k => { const b = document.createElement('button'); b.textContent = k; if (!k) b.style.visibility='hidden'; b.onclick = () => tecla(k); tec.appendChild(b); });
+function tecla(k){
+  if (k==='⌫') clave = clave.slice(0,-1); else if (clave.length < 4) clave += k;
+  document.querySelectorAll('#puntos i').forEach((p,i)=>p.classList.toggle('on', i < clave.length));
+  if (clave.length === 4) setTimeout(() => {
+    if (clave === '1234') { S.sesion = true; $('login').style.display='none'; $('appDentro').style.display='flex'; evento('Sesión iniciada (Demo)'); pintar(); }
+    else { $('puntos').classList.remove('err'); void $('puntos').offsetWidth; $('puntos').classList.add('err'); }
+    clave = ''; document.querySelectorAll('#puntos i').forEach(p=>p.classList.remove('on'));
+  }, 180);
+}
+$('bSalir').onclick = () => { S.sesion = false; $('appDentro').style.display='none'; $('login').style.display=''; evento('Sesión cerrada'); pintar(); };
+document.querySelectorAll('.navApp button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.navApp button').forEach(x => x.setAttribute('aria-selected', String(x===b)));
+  ['vPanel','vReportes','vAjustes'].forEach(id => $(id).hidden = id !== b.dataset.v);
+});
+$('bA').onclick = () => { audio(); const e = S.estado; if (e==='DESARMADO') armar('Demo'); else if (e==='SALIDA') { cambiar('DESARMADO'); evento('Armado cancelado'); } else desarmar('Demo'); };
+$('bB').onclick = silenciar;
+$('rSil').onclick = silenciar;
+$('rDes').onclick = () => desarmar('Demo');
+$('bProbar').onclick = () => { audio(); S.probando = true; evento('Prueba de LEDs, sirena y relé'); setTimeout(()=>{ S.probando = false; }, 1200); };
+
+/* ---------- Hey VORK (voz) ---------- */
+const Reco = window.SpeechRecognition || window.webkitSpeechRecognition;
+function hablar(t){ try { const u = new SpeechSynthesisUtterance(t); u.lang = 'es-ES'; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch {} }
+if (!Reco) { $('mic').disabled = true; $('micTxt').textContent = 'La voz funciona en Google Chrome'; }
+$('mic').onclick = () => {
+  if (!Reco) return;
+  audio();
+  const r = new Reco(); r.lang = 'es-ES'; r.interimResults = false; r.maxAlternatives = 3;
+  $('mic').classList.add('oye'); $('micTxt').textContent = 'Escuchando…';
+  r.onresult = ev => {
+    const dicho = Array.from(ev.results[0]).map(a=>a.transcript.toLowerCase()).join(' | ');
+    $('micTxt').textContent = '“'+ev.results[0][0].transcript+'”';
+    if (/desarm/.test(dicho)) { if (S.estado==='DESARMADO') hablar('La alarma ya está desarmada'); else { desarmar('Voz'); hablar('Alarma desarmada'); } }
+    else if (/silenci|calla/.test(dicho)) { if (S.estado==='ALARMA') { silenciar(); hablar('Sirena silenciada'); } else hablar('La sirena no está sonando'); }
+    else if (/arma|activa/.test(dicho)) { if (S.estado==='DESARMADO') { armar('Voz'); hablar('Alarma armada. Tienes '+t('SALIDA')+' segundos para salir'); } else hablar('La alarma ya está armada'); }
+    else if (/estado|cómo|como est/.test(dicho)) hablar('La alarma está '+VISTA[S.estado].tit.replace(/[¡!]/g,'').toLowerCase());
+    else hablar('No entendí. Puedes decir armar, desarmar, silenciar o estado');
+  };
+  r.onerror = () => { $('micTxt').textContent = 'No te escuché. Revisa el permiso del micrófono.'; };
+  r.onend = () => $('mic').classList.remove('oye');
+  try { r.start(); } catch {}
+};
+
+evento('Sistema iniciado');
+setInterval(tick, 50);
+pintar();
+})();
+</script>
+</body>
+</html>
