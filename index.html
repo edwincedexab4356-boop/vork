@@ -93,6 +93,16 @@ button.ver span{display:block;color:#a3a9b2;font-size:14px;margin-top:4px}
 .libre b{display:block;font-size:16px;font-weight:800}
 .libre span{font-size:14px;color:#3d4249}
 .libre .cta{margin-left:auto;background:var(--rojo);color:#fff}
+.real{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;padding:14px 18px;border-radius:18px;border:1px dashed #3a414b;background:#0d0f12}
+.real .ico{font-size:26px}
+.real b{display:block;font-size:16px;font-weight:800}
+.real span{font-size:13.5px;color:var(--txt2,#a3a9b3)}
+.real .bts{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.real.on{border:1px solid #1f5a38;background:#0b1f14}
+.real.on b{color:#b8f5cf}
+.real .punto{display:inline-block;width:9px;height:9px;border-radius:50%;background:#555;margin-right:6px;vertical-align:1px}
+.real.on .punto{background:var(--verde);box-shadow:0 0 10px var(--verde);animation:parp 1.4s steps(1) infinite}
+body.modoReal .solo-demo{opacity:.4;pointer-events:none}
 .opciones{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;font:13px var(--mono);color:var(--mut)}
 .bt{background:var(--p2);border:1px solid #2c3139;color:var(--txt);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600;transition:transform .12s,background .15s}
 .bt:active{transform:scale(.96)}
@@ -396,16 +406,26 @@ footer .cont{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 
     <div class="versiones" role="group" aria-label="Versión del simulador">
       <button class="ver" id="ver1" aria-pressed="true"><small>Simulación 1.0 · lo que tenemos</small><b>VORK 1.0</b><span>1 sensor ultrasónico en el retrovisor del conductor, LCD, sirena, LEDs, relé y Bluetooth.</span></button>
-      <button class="ver v2" id="ver2" aria-pressed="false"><small>Simulación 2.0 · la evolución</small><b>VORK 2.0</b><span>Sensores en los 2 retrovisores, sensor magnético en las puertas, sensor de movimiento en la cabina y batería de respaldo.</span></button>
+      <button class="ver v2 solo-demo" id="ver2" aria-pressed="false"><small>Simulación 2.0 · la evolución</small><b>VORK 2.0</b><span>Sensores en los 2 retrovisores, sensor magnético en las puertas, sensor de movimiento en la cabina y batería de respaldo.</span></button>
     </div>
     <div class="libre" role="note">
       <div class="clave" aria-label="Clave 1 2 3 4">1234</div>
       <div><b>Simulador gratis, para que cualquiera lo use</b><span>Entra a la app del simulador con la clave <strong>1234</strong>. Sin cuenta y sin descargar nada.</span></div>
       <button class="cta" id="bEntrarDemo">Entrar con 1234</button>
     </div>
+    <div class="real" id="real">
+      <div class="ico" aria-hidden="true">🔌</div>
+      <div><b><i class="punto"></i><span id="realTit" style="font-size:16px;color:inherit">¿Tienes el VORK de verdad? Conéctalo aquí</span></b><span id="realTxt">Con el Arduino conectado, este simulador muestra lo que pasa en el real (estado, distancia, LCD, hora) y lo controla: armar, desarmar, silenciar, distancia y hora. Funciona en Chrome o Edge.</span></div>
+      <div class="bts">
+        <button class="bt" id="bUsb">🔌 Conectar por USB</button>
+        <button class="bt" id="bBt">📶 Conectar por Bluetooth</button>
+        <button class="bt" id="bHora" hidden>🕐 Poner la hora</button>
+        <button class="bt peligro" id="bDesc" hidden>Desconectar</button>
+      </div>
+    </div>
     <div class="opciones">tiempos:
-      <button class="bt" id="vRapido" aria-pressed="true">demo rápida (5 s)</button>
-      <button class="bt" id="vReal" aria-pressed="false">como el real (30 s / 10 s)</button>
+      <button class="bt solo-demo" id="vRapido" aria-pressed="true">demo rápida (5 s)</button>
+      <button class="bt solo-demo" id="vReal" aria-pressed="false">como el real (30 s / 10 s)</button>
       <button class="bt" id="bSonido">🔊 sonido</button>
     </div>
 
@@ -448,12 +468,12 @@ footer .cont{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
         <div class="aviso" id="aviso"></div>
         <div class="umbral"><label for="rUmbral">distancia de detección</label><input type="range" id="rUmbral" min="20" max="200" step="5" value="80"><output id="oUmbral">80 cm</output></div>
         <div class="acciones">
-          <button class="bt" id="aIzq">🚶 se acerca (lado conductor)</button>
+          <button class="bt solo-demo" id="aIzq">🚶 se acerca (lado conductor)</button>
           <button class="bt" id="aDer" hidden>🚶 se acerca (lado pasajero)</button>
-          <button class="bt" id="aAleja">↩ se aleja</button>
+          <button class="bt solo-demo" id="aAleja">↩ se aleja</button>
           <button class="bt peligro" id="aPuerta" hidden>🔓 fuerza la puerta y entra</button>
-          <button class="bt peligro" id="aCorte">🔌 cortar la corriente</button>
-          <button class="bt" id="aDueno">🔑 llega el dueño</button>
+          <button class="bt peligro solo-demo" id="aCorte">🔌 cortar la corriente</button>
+          <button class="bt solo-demo" id="aDueno">🔑 llega el dueño</button>
         </div>
         <div class="hw">
           <div class="lcd" id="lcd">DESARMADO
@@ -720,8 +740,9 @@ const SENS = [{x:346, y:113, carril:92}, {x:346, y:247, carril:268}];
 const P = {x:90, y:52};
 const t = e => TIEMPOS[S.modo][e] || 0;
 const seg = () => (performance.now() - S.desde)/1000;
-const restante = () => Math.max(0, Math.ceil(t(S.estado) - seg()));
+const restante = () => R.on ? R.rest : Math.max(0, Math.ceil(t(S.estado) - seg()));
 const hora = () => new Date().toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+const R = {on:false, port:null, writer:null, lector:null, cerrado:null, pin:'', esperaLogin:'', rest:0, fecha:'sin hora', wifi:0, lcdOk:1, alerta:'', ultimoST:0};
 const esc = x => String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 
 /* ---------- registro, consola y paquetes ---------- */
@@ -768,7 +789,7 @@ function cambiar(nuevo){
   const id = nuevo==='DESARMADO' ? 'e-x-DESARMADO' : `e-${viejo}-${nuevo}`;
   const arista = $(id);
   if (arista) { arista.classList.remove('flash'); void arista.getBBox(); arista.classList.add('flash'); setTimeout(()=>arista.classList.remove('flash'), 1100); }
-  linea('ev', `EV|${nuevo}`);
+  if (!R.on) linea('ev', `EV|${nuevo}`);
   pintar();
 }
 function vivo(){ if (S.muerto) { linea('er','(sin respuesta: el Arduino no tiene energía)'); return false; } return true; }
@@ -785,7 +806,7 @@ function medir(i){
 }
 function alarma(texto){ cambiar('ALARMA'); S.ultimaAlerta = hora(); evento(texto, true); notificar('🚨 '+texto, 5); }
 function tick(){
-  if (S.muerto) { pintar(); return; }
+  if (S.muerto || R.on) { pintar(); return; }
   S.d1 = medir(0); S.d2 = S.ver===2 ? medir(1) : null;
   if (!S.corriente && S.ver===2) S.bateria = Math.max(0, S.bateria - 0.004);
   const e = S.estado, s = seg();
@@ -864,7 +885,7 @@ function pintar(){
   if (S.probando && on) { rojo = verde = sonido = true; }
   $('ledV').classList.toggle('on', verde); $('ledR').classList.toggle('on', rojo);
   $('buz').classList.toggle('on', sonido); $('rele').classList.toggle('on', on && (e==='ALARMA' || S.probando));
-  $('pzBt').classList.toggle('on', on); $('pzWifi').classList.toggle('on', on);
+  $('pzBt').classList.toggle('on', on); $('pzWifi').classList.toggle('on', on && (!R.on || R.wifi===1));
   $('pzBat').classList.toggle('on', v2); $('batTxt').textContent = '18650 · '+Math.round(S.bateria)+'%'+(S.corriente?'':' (en uso)');
   buzzer(sonido);
   const intermit = on && e==='ALARMA' && Math.floor(now/250)%2===0;
@@ -886,7 +907,15 @@ function pintar(){
   $('estadoTxt').textContent = on ? e : 'APAGADO';
   // LCD
   const lcd = $('lcd'); lcd.classList.toggle('off', !on);
-  if (on) {
+  if (on && R.on) {
+    const pad = s => (s+' '.repeat(16)).slice(0,16);
+    const l1 = e==='SALIDA' ? 'SALIDA EN '+r+'s' : e==='ENTRADA' ? 'DESARMA EN '+r+'s' : e==='ALARMA' ? '!! INTRUSION !!' : e;
+    const cm = String(S.d1===null ? 0 : S.d1).padStart(3,' ');
+    const verAlerta = R.alerta && (e==='ALARMA' || e==='SILENCIADA' || (e==='DESARMADO' && Math.floor(Date.now()/3000)%2));
+    const l2 = verAlerta ? R.alerta : (R.fecha==='sin hora' ? 'SIN HORA  ' : R.fecha.slice(11,19)+'  ')+cm+'cm';
+    lcd.textContent = pad(l1)+'\n'+pad(l2);
+    lcd.title = R.lcdOk ? 'Lo mismo que muestra la LCD real' : 'El Arduino dice que la LCD real NO responde (revisa SDA/SCL)';
+  } else if (on) {
     const pad = s => (s+' '.repeat(16)).slice(0,16);
     const l1 = e==='SALIDA' ? 'SALIDA EN '+r+'s' : e==='ENTRADA' ? 'DESARMA EN '+r+'s' : e==='ALARMA' ? '!! INTRUSION !!' : e;
     const dm = Math.min(...[S.d1, v2 ? S.d2 : null].map(x => x===null ? 999 : x));
@@ -895,7 +924,7 @@ function pintar(){
     lcd.textContent = pad(l1)+'\n'+pad(l2);
   } else lcd.textContent = ' '.repeat(16)+'\n'+' '.repeat(16);
   // app
-  $('con').classList.toggle('no', !on); $('conTxt').textContent = on ? 'HC-05' : 'sin conexión';
+  $('con').classList.toggle('no', !on); $('conTxt').textContent = !on ? 'sin conexión' : R.on ? 'VORK REAL' : 'HC-05';
   $('bloque').style.background = on ? v.bg : '#2a2d33';
   $('bTit').textContent = on ? v.tit : 'Sin conexión';
   $('bDet').textContent = !on ? 'La alarma no responde (¿sin energía?)'
@@ -958,10 +987,14 @@ function textoST(){
     ? `ST|${S.estado}|${c(S.d1)}|${S.umbral}|${restante()}|${hora()}|wifi=1|lcd=1`
     : `ST2|${S.estado}|L=${c(S.d1)}|R=${c(S.d2)}|PTA=${S.puerta?1:0}|PIR=${S.dentro?1:0}|BAT=${Math.round(S.bateria)}%|${S.corriente?'RED':'BATERIA'}`;
 }
-setInterval(() => { if (S.muerto) { $('ticker').textContent = '# sin señal del Arduino'; return; } const x = textoST(); $('ticker').textContent = '← '+x; if (!pausaST) linea('rx', x); }, 1500);
+setInterval(() => { if (R.on) return; if (S.muerto) { $('ticker').textContent = '# sin señal del Arduino'; return; } const x = textoST(); $('ticker').textContent = '← '+x; if (!pausaST) linea('rx', x); }, 1500);
 $('bPausa').onclick = () => { pausaST = !pausaST; $('bPausa').textContent = pausaST ? 'reanudar ST' : 'pausar ST'; };
 function orden(txt, desdeApp){
   txt = txt.trim(); if (!txt) return;
+  if (R.on) {
+    if (desdeApp) { if (!R.pin) { linea('er','Entra primero a la app con la clave de tu VORK'); return; } txt = txt.replace('|1234', '|'+R.pin); }
+    linea('tx', R.pin ? txt.split(R.pin).join('••••') : txt); enviar(txt); return;
+  }
   linea('tx', txt);
   if (S.muerto) { setTimeout(()=>linea('er','(sin respuesta: el Arduino no tiene energía)'), 150); return; }
   const p = txt.toUpperCase().split('|'), cmd = p[0], pin = p[1];
@@ -990,7 +1023,7 @@ function limitar(){
   P.x = Math.min(540, Math.max(20, P.x)); P.y = Math.min(340, Math.max(20, P.y));
   if (!S.dentro && P.x > 120 && P.x < 440 && P.y > 112 && P.y < 248) P.y = P.y < 180 ? 112 : 248;
 }
-$('persona').addEventListener('pointerdown', ev => { arrastrando = true; S.dentro = false; cancelAnimationFrame(anim); $('persona').setPointerCapture(ev.pointerId); });
+$('persona').addEventListener('pointerdown', ev => { if (R.on) return; arrastrando = true; S.dentro = false; cancelAnimationFrame(anim); $('persona').setPointerCapture(ev.pointerId); });
 $('persona').addEventListener('pointermove', ev => { if (!arrastrando) return; const p = aSvg(ev); P.x = p.x; P.y = p.y; limitar(); pintar(); });
 $('persona').addEventListener('pointerup', () => arrastrando = false);
 $('persona').addEventListener('keydown', ev => { const d = 10; if (ev.key==='ArrowLeft') P.x-=d; else if (ev.key==='ArrowRight') P.x+=d; else if (ev.key==='ArrowUp') P.y-=d; else if (ev.key==='ArrowDown') P.y+=d; else return; ev.preventDefault(); S.dentro=false; limitar(); pintar(); });
@@ -1015,6 +1048,8 @@ $('aDueno').onclick = () => { S.dentro = false; irA(300, SENS[0].carril, 1700, (
 
 function fijarUmbral(v){ S.umbral = v; $('rUmbral').value = v; $('oUmbral').textContent = v+' cm'; $('umbralTxt').textContent = v+' cm'; pintar(); }
 $('rUmbral').oninput = e => fijarUmbral(+e.target.value);
+$('rUmbral').onchange = e => { if (R.on) { R.tocandoUmbral = 0; orden('UMBRAL|1234|'+e.target.value, true); } };
+$('rUmbral').addEventListener('pointerdown', () => R.tocandoUmbral = 1);
 $('vRapido').onclick = () => { S.modo='rapido'; $('vRapido').setAttribute('aria-pressed','true'); $('vReal').setAttribute('aria-pressed','false'); pintar(); };
 $('vReal').onclick = () => { S.modo='real'; $('vReal').setAttribute('aria-pressed','true'); $('vRapido').setAttribute('aria-pressed','false'); pintar(); };
 $('bSonido').onclick = () => { S.sonido = !S.sonido; $('bSonido').textContent = S.sonido ? '🔊 sonido' : '🔇 sin sonido'; };
@@ -1051,6 +1086,7 @@ function tecla(k){
     const intento = clave; clave = '';
     setTimeout(() => {
       linea('tx', 'LOGIN|••••');
+      if (R.on) { R.esperaLogin = intento; enviar('LOGIN|'+intento); document.querySelectorAll('#puntos i').forEach(p=>p.classList.remove('on')); return; }
       if (intento === '1234') { linea('rx','OK|LOGIN|Demo|A'); S.sesion = true; $('login').style.display='none'; $('appDentro').style.display='flex'; evento('Sesión iniciada (Demo)'); pintar(); }
       else { linea('er','ERR|PIN'); $('puntos').classList.remove('err'); void $('puntos').offsetWidth; $('puntos').classList.add('err'); }
       document.querySelectorAll('#puntos i').forEach(p=>p.classList.remove('on'));
@@ -1058,7 +1094,8 @@ function tecla(k){
   }
 }
 $('bEntrarDemo').onclick = () => { audio(); if (!S.sesion) { clave = ''; ['1','2','3','4'].forEach(tecla); } document.querySelector('.tel').scrollIntoView({block:'center'}); };
-$('bSalir').onclick = () => { S.sesion = false; $('appDentro').style.display='none'; $('login').style.display=''; linea('tx','SALIR|1234'); evento('Sesión cerrada'); pintar(); };
+function cerrarApp(){ S.sesion = false; $('appDentro').style.display='none'; $('login').style.display=''; }
+$('bSalir').onclick = () => { if (R.on) { orden('SALIR|1234', true); R.pin = ''; } else linea('tx','SALIR|1234'); cerrarApp(); evento('Sesión cerrada'); pintar(); };
 document.querySelectorAll('.navApp button').forEach(b => b.onclick = () => {
   document.querySelectorAll('.navApp button').forEach(x => x.setAttribute('aria-selected', String(x===b)));
   ['vPanel','vReportes','vAjustes'].forEach(id => $(id).hidden = id !== b.dataset.v);
@@ -1103,6 +1140,122 @@ $('mic').onclick = () => {
   h = h.replace(/[-]/g, ch => marcas[ch.charCodeAt(0) - 0xE000]);
   pre.innerHTML = h;
 })();
+
+/* ======================= VORK REAL (Web Serial) ======================= */
+const SPP = '00001101-0000-1000-8000-00805f9b34fb';
+const enc = new TextEncoder();
+function realUI(){
+  document.body.classList.toggle('modoReal', R.on);
+  $('real').classList.toggle('on', R.on);
+  $('bUsb').hidden = $('bBt').hidden = R.on; $('bHora').hidden = $('bDesc').hidden = !R.on;
+  $('realTit').textContent = R.on ? 'Conectado al VORK real' : '¿Tienes el VORK de verdad? Conéctalo aquí';
+  $('realTxt').textContent = R.on
+    ? (R.pin ? 'Sesión iniciada. Todo lo que ves viene del Arduino y los botones lo controlan de verdad.' : 'Ahora entra a la app del teléfono (abajo) con la clave de TU VORK, no la 1234.')
+    : 'Con el Arduino conectado, este simulador muestra lo que pasa en el real (estado, distancia, LCD, hora) y lo controla: armar, desarmar, silenciar, distancia y hora. Funciona en Chrome o Edge.';
+}
+async function enviar(txt){
+  if (!R.writer) return;
+  try { await R.writer.write(enc.encode(txt+'\n')); } catch { linea('er','No se pudo enviar al Arduino'); }
+}
+async function conectar(porBt){
+  if (!('serial' in navigator)) { aviso('malo','Para conectar el VORK real abre esta página en Google Chrome o Microsoft Edge (computadora o Android). En iPhone y en Firefox no se puede.'); return; }
+  audio();
+  let port;
+  try {
+    port = await navigator.serial.requestPort(porBt ? {filters:[{bluetoothServiceClassId:SPP}], allowedBluetoothServiceClassIds:[SPP]} : {allowedBluetoothServiceClassIds:[SPP]});
+  } catch (e) {
+    if (porBt && e.name==='NotFoundError') aviso('malo','No apareció el HC-05. Primero emparéjalo en la configuración de Bluetooth (clave 1234 o 0000). En Windows también puedes usar “Conectar por USB” y elegir el puerto COM del Bluetooth (Enlace serie estándar).');
+    return;
+  }
+  try { await port.open({baudRate:9600}); }
+  catch (e) { aviso('malo','No se pudo abrir el puerto: está ocupado. Cierra el Monitor Serie del Arduino IDE u otra pestaña conectada y vuelve a intentar.'); return; }
+  R.port = port; R.writer = port.writable.getWriter(); R.on = true; R.pin = ''; R.alerta = ''; R.ultimoST = performance.now();
+  version(1); cerrarApp(); aviso('', '');
+  linea('sys', 'conectado al VORK REAL por '+(porBt ? 'Bluetooth' : 'USB')+' · 9600 baudios');
+  evento('Conectado al VORK real ('+(porBt ? 'Bluetooth' : 'USB')+')');
+  realUI(); leer(port); enviar('ESTADO');
+  document.querySelector('.tel').scrollIntoView({block:'center', behavior:'smooth'});
+}
+async function leer(port){
+  const dec = new TextDecoderStream();
+  R.cerrado = port.readable.pipeTo(dec.writable).catch(() => {});
+  R.lector = dec.readable.getReader();
+  let buf = '';
+  try {
+    while (true) {
+      const {value, done} = await R.lector.read(); if (done) break;
+      buf += value; let i;
+      while ((i = buf.search(/[\r\n]/)) >= 0) { const l = buf.slice(0,i).replace(/[^\x20-\x7e]/g,'').trim(); buf = buf.slice(i+1); if (l) recibir(l); }
+      if (buf.length > 400) buf = '';
+    }
+  } catch {}
+  if (R.port === port) desconectado('se perdió la conexión con el Arduino');
+}
+async function desconectar(){
+  const port = R.port; R.port = null;
+  try { await R.lector.cancel(); } catch {}
+  try { await R.cerrado; } catch {}
+  try { R.writer.releaseLock(); } catch {}
+  try { await port.close(); } catch {}
+  desconectado('desconectado del VORK real');
+}
+function desconectado(txt){
+  if (!R.on) return;
+  R.on = false; R.writer = null; R.pin = ''; R.port = null;
+  linea('sys', txt); evento('VORK real desconectado');
+  cerrarApp(); realUI(); version(1);
+}
+function recibir(l){
+  if (l.startsWith('ST|')) {
+    const p = l.split('|');
+    if (p.length < 10) return;
+    R.ultimoST = performance.now();
+    const nuevo = p[1], d = parseInt(p[2],10), um = parseInt(p[3],10);
+    R.rest = Math.max(0, parseInt(p[4],10) || 0); R.fecha = p[5] || 'sin hora'; R.wifi = +p[6]; R.alerta = p[8] || ''; R.lcdOk = +p[9];
+    S.d1 = d > 0 ? d : null;
+    if (um > 0 && !R.tocandoUmbral && um !== S.umbral) fijarUmbral(um);
+    if (nuevo === 'ENTRADA' && S.estado !== 'ENTRADA') { S.lado = 'izq'; S.deteccion = S.d1 || S.umbral; }
+    if (nuevo === 'ALARMA' && S.estado !== 'ALARMA') S.ultimaAlerta = R.alerta;
+    if (VISTA[nuevo] && nuevo !== S.estado) cambiar(nuevo);
+    if (S.d1 !== null) { P.x = Math.max(20, SENS[0].x - 20 - S.d1); P.y = SENS[0].carril; } else { P.x = 90; P.y = 52; }
+    $('ticker').textContent = '← '+l;
+    if (!pausaST) linea('rx', l);
+    pintar(); return;
+  }
+  if (l.startsWith('EV|')) {
+    const p = l.split('|'), txt = p.slice(2).join(' ') || p[1];
+    linea('ev', l); evento(txt.charAt(0) + txt.slice(1).toLowerCase(), /INTRUS|ALARMA|DETEC|FALLADO/.test(txt)); return;
+  }
+  if (l.startsWith('OK|LOGIN')) {
+    const p = l.split('|');
+    linea('rx', l);
+    if (R.esperaLogin) { R.pin = R.esperaLogin; R.esperaLogin = ''; S.sesion = true; $('login').style.display='none'; $('appDentro').style.display='flex'; evento('Sesión iniciada en el VORK real ('+(p[2]||'')+')'); realUI(); pintar(); }
+    return;
+  }
+  if (l.startsWith('ERR|')) {
+    linea('er', l);
+    if (R.esperaLogin && (l==='ERR|PIN' || l==='ERR|BLOQUEADO')) { R.esperaLogin = ''; $('puntos').classList.remove('err'); void $('puntos').offsetWidth; $('puntos').classList.add('err'); if (l==='ERR|BLOQUEADO') aviso('malo','Demasiados intentos con la clave equivocada: el VORK está bloqueado un momento.'); }
+    return;
+  }
+  if (l.startsWith('OK|HORA')) { linea('rx', l); evento('Hora del reloj ajustada'); aviso('bueno','✔ El reloj del VORK ya tiene la hora correcta.'); setTimeout(()=>aviso('',''), 4000); return; }
+  if (l.startsWith('OK|') || l.startsWith('LOG|') || l.startsWith('TEMA|') || l.startsWith('DIAG|') || l.startsWith('USR|')) { linea('rx', l); return; }
+  linea('sys', l);
+}
+setInterval(() => {
+  if (!R.on) return;
+  enviar('ESTADO');
+  if (performance.now() - R.ultimoST > 6000) { $('realTxt').textContent = 'El Arduino no responde… revisa el cable o el Bluetooth.'; }
+  else if ($('realTxt').textContent.startsWith('El Arduino no responde')) realUI();
+}, 1000);
+$('bUsb').onclick = () => conectar(false);
+$('bBt').onclick = () => conectar(true);
+$('bDesc').onclick = () => desconectar();
+$('bHora').onclick = () => {
+  const d = new Date(), z = n => String(n).padStart(2,'0');
+  orden(`HORA|1234|${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`, true);
+};
+if ('serial' in navigator) navigator.serial.addEventListener('disconnect', e => { if (R.port && e.target === R.port) desconectado('se desconectó el cable o el Bluetooth'); });
+realUI();
 
 /* ---------- arranque ---------- */
 linea('sys','VORK · consola serie · 9600 baudios · escribe AYUDA');
